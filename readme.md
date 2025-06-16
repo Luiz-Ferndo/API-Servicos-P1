@@ -8,3 +8,4 @@ Uma empresa deseja desenvolver um Sistema de Prestação de Serviços que permit
 ## Documentação
 
 - [Requisitos](./Documentação/requisitos.md)
+- [Caso de Uso](./Documentação/caso_de_uso.md)
