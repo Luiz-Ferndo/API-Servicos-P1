@@ -40,7 +40,5 @@ public class ServicosService {
         servicosRepository.deleteById(id);
     }
 
-    public Servicos salvarServico(Servicos servicos) {
-        return servicosRepository.save(servicos);
-    }
+
 }
