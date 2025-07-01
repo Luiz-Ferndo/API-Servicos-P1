@@ -35,4 +35,12 @@ public class ServicosService {
             return servicosRepository.save(s);
         }).orElseThrow(() -> new RuntimeException("Serviço não encontrado"));
     }
+
+    public void deletar(Long id) {
+        servicosRepository.deleteById(id);
+    }
+
+    public Servicos salvarServico(Servicos servicos) {
+        return servicosRepository.save(servicos);
+    }
 }
