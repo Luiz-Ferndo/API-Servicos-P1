@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres_servicos
+    environment:
+      POSTGRES_DB: prestacao_servicos
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./scripts/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: app_servicos
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/prestacao_servicos
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: root
+    volumes:
+      - ./target:/app/target
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:
