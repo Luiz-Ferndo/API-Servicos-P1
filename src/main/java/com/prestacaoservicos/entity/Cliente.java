@@ -1,14 +1,23 @@
 package com.prestacaoservicos.entity;
 
 import jakarta.persistence.*;
+import java.util.Objects;
 
 @Entity
+@Table(name = "cliente")
 public class Cliente {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "cd_cliente")
     private Long id;
+
+    @Column(name = "nm_cliente", nullable = false, length = 255)
     private String nome;
+
+    @Column(name = "ds_email", nullable = false, unique = true, length = 255)
     private String email;
+    
+    @Column(name = "ds_senha", nullable = false, length = 255)
     private String senha;
 
     public Cliente() {
@@ -58,10 +67,10 @@ public class Cliente {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Cliente cliente = (Cliente) o;
-        return java.util.Objects.equals(id, cliente.id) &&
-                java.util.Objects.equals(nome, cliente.nome) &&
-                java.util.Objects.equals(email, cliente.email) &&
-                java.util.Objects.equals(senha, cliente.senha);
+        return Objects.equals(id, cliente.id) &&
+                Objects.equals(nome, cliente.nome) &&
+                Objects.equals(email, cliente.email) &&
+                Objects.equals(senha, cliente.senha);
     }
 
     @Override

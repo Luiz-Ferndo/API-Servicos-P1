@@ -7,32 +7,43 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
+@Table(name = "agendamento")
 public class Agendamento {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "cd_agendamento")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cd_cliente", nullable = false)
     private Cliente cliente;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cd_prestador", nullable = false)
     private Prestador prestador;
 
+    @Column(name = "dt_agendamento", nullable = false)
     private LocalDateTime dataHora;
+    @Column(name = "vl_agendamento", nullable = false)
     private Double valor;
-    private String status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cd_status", nullable = false)
+    private DominioStatusAgendamento status;
+
+    @Column(name = "ds_motivo_cancelamento", length = 255)
     private String motivoCancelamento;
 
     public Agendamento() {
     }
 
-    public Agendamento(Long id, Cliente cliente, Prestador prestador, LocalDateTime dataHora, Double valor, String status, String motivoCancelamento) {
+    public Agendamento(Long id, Cliente cliente, Prestador prestador, LocalDateTime dataHora, Double valor, DominioStatusAgendamento dominioStatusAgendamento, String motivoCancelamento) {
         this.id = id;
         this.cliente = cliente;
         this.prestador = prestador;
         this.dataHora = dataHora;
         this.valor = valor;
-        this.status = status;
+        this.status = dominioStatusAgendamento;
         this.motivoCancelamento = motivoCancelamento;
     }
 
@@ -76,11 +87,11 @@ public class Agendamento {
         this.valor = valor;
     }
 
-    public String getStatus() {
+    public DominioStatusAgendamento getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(DominioStatusAgendamento status) {
         this.status = status;
     }
 
