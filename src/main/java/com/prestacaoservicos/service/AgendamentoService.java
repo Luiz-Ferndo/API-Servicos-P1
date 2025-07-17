@@ -38,7 +38,7 @@ public class AgendamentoService {
         ag.setCliente(cliente);
         ag.setPrestador(prestador);
         ag.setDataHora(dataHora);
-        ag.setStatus("CONFIRMADO");
+        ag.setStatus(null);
         ag.setValor(prestador.getPreco());
 
         return agendamentoRepo.save(ag);
@@ -50,7 +50,7 @@ public class AgendamentoService {
         if (ag.getDataHora().isBefore(LocalDateTime.now().plusHours(12)))
             throw new RuntimeException("Cancelamento só permitido até 12h antes.");
 
-        ag.setStatus("CANCELADO");
+        ag.setStatus(null);
         ag.setMotivoCancelamento(motivo);
 
         agendamentoRepo.save(ag);
