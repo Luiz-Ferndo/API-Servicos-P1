@@ -15,14 +15,21 @@ import java.util.List;
 @Service
 public class AgendamentoService {
 
-    @Autowired
-    private AgendamentoRepository agendamentoRepo;
-    @Autowired
-    private ClienteRepository clienteRepo;
-    @Autowired
-    private PrestadorRepository prestadorRepo;
-    @Autowired
-    private PagamentoService pagamentoService;
+    private final AgendamentoRepository agendamentoRepo;
+    private final ClienteRepository clienteRepo;
+    private final PrestadorRepository prestadorRepo;
+    private final PagamentoService pagamentoService;
+
+    public AgendamentoService(
+            AgendamentoRepository agendamentoRepo,
+            ClienteRepository clienteRepo,
+            PrestadorRepository prestadorRepo,
+            PagamentoService pagamentoService) {
+        this.agendamentoRepo = agendamentoRepo;
+        this.clienteRepo = clienteRepo;
+        this.prestadorRepo = prestadorRepo;
+        this.pagamentoService = pagamentoService;
+    }
 
     public Agendamento agendar(Long clienteId, Long prestadorId, LocalDateTime dataHora) {
         if (dataHora.isBefore(LocalDateTime.now().plusHours(24)))
