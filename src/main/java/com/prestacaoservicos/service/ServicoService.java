@@ -10,34 +10,34 @@ import java.util.Optional;
 @Service
 public class ServicoService {
 
-    private final ServicoRepository ServicoRepository;
+    private final ServicoRepository servicoRepository;
 
-    public ServicoService(ServicoRepository ServicoRepository) {
-        this.ServicoRepository = ServicoRepository;
+    public ServicoService(ServicoRepository servicoRepository) {
+        this.servicoRepository = servicoRepository;
     }
 
     public List<Servico> listar() {
-        return ServicoRepository.findAll();
+        return servicoRepository.findAll();
     }
 
     public Optional<Servico> buscarPorId(Long id) {
-        return ServicoRepository.findById(id);
+        return servicoRepository.findById(id);
     }
 
     public Servico salvar(Servico Servico) {
-        return ServicoRepository.save(Servico);
+        return servicoRepository.save(Servico);
     }
 
     public Servico atualizar(Long id, Servico servico) {
-        return ServicoRepository.findById(id).map(s -> {
+        return servicoRepository.findById(id).map(s -> {
             s.setCodigo(servico.getCodigo());
             s.setDescricao(servico.getDescricao());
-            return ServicoRepository.save(s);
+            return servicoRepository.save(s);
         }).orElseThrow(() -> new RuntimeException("Serviço não encontrado"));
     }
 
     public void deletar(Long id) {
-        ServicoRepository.deleteById(id);
+        servicoRepository.deleteById(id);
     }
 
 

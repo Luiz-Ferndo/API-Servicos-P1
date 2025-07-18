@@ -11,11 +11,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/agendamentos")
+@RequestMapping("/api/v1/agendamentos")
 public class AgendamentoController {
 
-    @Autowired
-    private AgendamentoService service;
+    private final AgendamentoService service;
+
+    public AgendamentoController(AgendamentoService service) {
+        this.service = service;
+    }
 
     @PostMapping
     @Operation(summary = "Agendar novo serviço")
