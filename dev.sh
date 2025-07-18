@@ -8,7 +8,7 @@ case "$1" in
 
   up)
     echo "🚀 Subindo containers..."
-    docker compose up --build
+    docker compose up -d --build
     ;;
 
   down)
