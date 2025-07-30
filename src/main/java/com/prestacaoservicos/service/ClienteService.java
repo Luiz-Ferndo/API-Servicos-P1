@@ -1,9 +1,8 @@
 package com.prestacaoservicos.service;
 
-
 import com.prestacaoservicos.entity.Cliente;
+import com.prestacaoservicos.exception.RecursoNaoEncontradoException;
 import com.prestacaoservicos.repository.ClienteRepository;
-import com.prestacaoservicos.repository.ServicoRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,11 +33,13 @@ public class ClienteService {
             c.setNome(cliente.getNome());
             c.setEmail(cliente.getEmail());
             return clienteRepository.save(c);
-        }).orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+        }).orElseThrow(() -> new RecursoNaoEncontradoException("Cliente não encontrado"));
     }
 
     public void deletar(Long id) {
+        if (!clienteRepository.existsById(id)) {
+            throw new RecursoNaoEncontradoException("Cliente não encontrado");
+        }
         clienteRepository.deleteById(id);
     }
-
 }

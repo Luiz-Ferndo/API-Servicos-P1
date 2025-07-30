@@ -1,6 +1,7 @@
 package com.prestacaoservicos.service;
 
 import com.prestacaoservicos.entity.Servico;
+import com.prestacaoservicos.exception.RecursoNaoEncontradoException;
 import com.prestacaoservicos.repository.ServicoRepository;
 import org.springframework.stereotype.Service;
 
@@ -24,8 +25,8 @@ public class ServicoService {
         return servicoRepository.findById(id);
     }
 
-    public Servico salvar(Servico Servico) {
-        return servicoRepository.save(Servico);
+    public Servico salvar(Servico servico) {
+        return servicoRepository.save(servico);
     }
 
     public Servico atualizar(Long id, Servico servico) {
@@ -33,12 +34,13 @@ public class ServicoService {
             s.setCodigo(servico.getCodigo());
             s.setDescricao(servico.getDescricao());
             return servicoRepository.save(s);
-        }).orElseThrow(() -> new RuntimeException("Serviço não encontrado"));
+        }).orElseThrow(() -> new RecursoNaoEncontradoException("Serviço não encontrado"));
     }
 
     public void deletar(Long id) {
+        if (!servicoRepository.existsById(id)) {
+            throw new RecursoNaoEncontradoException("Serviço não encontrado");
+        }
         servicoRepository.deleteById(id);
     }
-
-
 }
