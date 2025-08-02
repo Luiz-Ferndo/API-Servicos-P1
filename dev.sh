@@ -26,6 +26,14 @@ case "$1" in
     docker system prune -f
     ;;
 
+  dev)
+    echo "🔄 Executando o modo de desenvolvimento..."
+    docker compose down -v
+    docker system prune -f
+    docker compose --env-file .env up -d --build
+    echo "Acesse o app em http://localhost:8080"
+    ;;
+
   *)
     echo "Comandos disponíveis:"
     echo "  ./dev.sh build     # Compila o JAR"
@@ -33,5 +41,6 @@ case "$1" in
     echo "  ./dev.sh down      # Para os containers"
     echo "  ./dev.sh logs      # Ver logs em tempo real"
     echo "  ./dev.sh clean     # Remove tudo"
+    echo "  ./dev.sh dev       # Executa o modo de desenvolvimento"
     ;;
 esac

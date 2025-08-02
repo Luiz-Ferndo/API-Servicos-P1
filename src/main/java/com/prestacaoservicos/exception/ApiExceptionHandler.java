@@ -47,4 +47,34 @@ public class ApiExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
+
+    @ExceptionHandler(JwtInvalidTokenException.class)
+    public ResponseEntity<ApiError> handleJwtInvalidToken(JwtInvalidTokenException ex, HttpServletRequest request) {
+        ApiError error = new ApiError(
+                HttpStatus.UNAUTHORIZED,
+                "Token inválido ou expirado.",
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+
+    @ExceptionHandler(JwtGenerationException.class)
+    public ResponseEntity<ApiError> handleJwtGeneration(JwtGenerationException ex, HttpServletRequest request) {
+        ApiError error = new ApiError(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Erro interno ao processar o token de autenticação.",
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+
+    @ExceptionHandler(CredenciaisInvalidasException.class)
+    public ResponseEntity<ApiError> handleCredenciaisInvalidas(CredenciaisInvalidasException ex, HttpServletRequest request) {
+        ApiError error = new ApiError(
+                HttpStatus.UNAUTHORIZED,
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
 }

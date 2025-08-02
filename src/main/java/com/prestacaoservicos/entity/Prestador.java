@@ -76,7 +76,7 @@ public class Prestador {
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(id, nome, servico, preco);
+        return Objects.hash(id, nome, servico, preco);
     }
 
     @Override
