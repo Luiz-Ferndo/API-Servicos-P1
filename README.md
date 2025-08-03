@@ -28,8 +28,8 @@ Antes de começar, garanta que você tenha as seguintes ferramentas instaladas e
 
 * [Java Development Kit (JDK) 21+](https://www.oracle.com/java/technologies/downloads/)
 * [Docker](https://www.docker.com/products/docker-desktop/) e [Docker Compose](https://docs.docker.com/compose/install/)
-* [Maven](https://maven.apache.org/download.cgi) ou [Gradle](https://gradle.org/install/) (dependendo do seu gerenciador de dependências)
-* Um cliente de API como [Postman](https://www.postman.com/downloads/) ou [Insomnia](https://insomnia.rest/download)
+* [Maven](https://maven.apache.org/download.cgi)
+* Um cliente de API como [Postman](https://www.postman.com/downloads/)
 
 -----
 
@@ -52,10 +52,9 @@ Siga os passos abaixo para executar a aplicação localmente.
     ```
 
 3.  **Execute a aplicação Spring Boot:**
-    Você pode executar a aplicação usando o Maven.
+    Você pode executar a aplicação usando o wrapper do Maven.
 
     ```bash
-    # Usando Maven
     ./mvnw spring-boot:run
     ```
 
@@ -76,14 +75,49 @@ chmod +x dev.sh
 
 **Comandos disponíveis:**
 
-| Comando               | Descrição                                                                                             |
-| :-------------------- | :---------------------------------------------------------------------------------------------------- |
-| `./dev.sh build`      | Compila o código-fonte e empacota a aplicação em um arquivo JAR, pulando os testes.                     |
-| `./dev.sh up`         | Constrói as imagens (se necessário) e sobe os containers da aplicação e do banco de dados.              |
-| `./dev.sh down`       | Para e remove os containers da aplicação.                                                               |
-| `./dev.sh logs`       | Exibe os logs dos containers em tempo real, útil para depuração.                                        |
-| `./dev.sh clean`      | Para os containers, remove os volumes associados (deletando os dados do banco) e limpa o sistema Docker. |
-| `./dev.sh dev`        | Executa um ciclo de desenvolvimento completo: limpa o ambiente, sobe os containers e exibe a URL.     |
+| Comando | Descrição |
+| :--- | :--- |
+| `./dev.sh build` | Compila o código-fonte e empacota a aplicação em um arquivo JAR. |
+| `./dev.sh up` | Constrói e sobe os containers da aplicação e do banco de dados. |
+| `./dev.sh down` | Para e remove os containers da aplicação. |
+| `./dev.sh logs` | Exibe os logs dos containers em tempo real, útil para depuração. |
+| `./dev.sh clean` | Para os containers, remove os volumes (dados do banco) e limpa o sistema. |
+| `./dev.sh dev` | Executa um ciclo de desenvolvimento completo (down, up, logs). |
+| `./dev.sh install` | **Instala o comando `dev` nativamente no seu terminal (para Bash/Zsh).** |
+| `./dev.sh uninstall` | **Remove a instalação do comando `dev` do seu terminal.** |
+
+### 🚀 Tornando o Comando Nativo (Opcional)
+
+Para evitar ter que digitar `./dev.sh` toda vez, você pode "instalar" o script como um comando nativo no seu shell.
+
+1.  **Execute o instalador:**
+
+    ```bash
+    ./dev.sh install
+    ```
+
+    Isso adicionará uma função ao seu arquivo de configuração (`~/.bashrc` ou `~/.zshrc`).
+
+2.  **Atualize seu terminal:**
+    Para que a mudança tenha efeito, execute o comando abaixo ou simplesmente reinicie seu terminal.
+
+    ```bash
+    # Para Bash
+    source ~/.bashrc
+
+    # Para Zsh
+    source ~/.zshrc
+    ```
+
+3.  **Pronto\!** Agora você pode usar os comandos de forma muito mais simples, de qualquer pasta:
+
+    ```bash
+    dev up
+    dev logs
+    dev down
+    ```
+
+Para reverter o processo, basta executar `./dev.sh uninstall`.
 
 -----
 
@@ -106,15 +140,15 @@ A URL base para todas as requisições é: `http://localhost:8080`
 
 Endpoints para gerenciamento de usuários e autenticação.
 
-| Método   | Endpoint                      | Autenticação | Descrição                                  |
-| :------- | :---------------------------- | :----------- | :----------------------------------------- |
-| `POST`   | `/users`                      | **Não** | Registra um novo usuário no sistema.       |
-| `POST`   | `/users/login`                | **Não** | Autentica um usuário e retorna um token JWT. |
-| `GET`    | `/users`                      | **Sim** | Lista todos os usuários cadastrados.       |
-| `GET`    | `/users/{id}`                 | **Sim** | Busca um usuário específico pelo seu ID.   |
-| `GET`    | `/users/search?email={email}` | **Sim** | Busca um usuário pelo seu endereço de email. |
-| `PUT`    | `/users/{id}`                 | **Sim** | Atualiza os dados de um usuário.           |
-| `DELETE` | `/users/{id}`                 | **Sim** | Exclui um usuário do sistema.              |
+| Método | Endpoint | Autenticação | Descrição |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/users` | **Não** | Registra um novo usuário no sistema. |
+| `POST` | `/users/login` | **Não** | Autentica um usuário e retorna um token JWT. |
+| `GET` | `/users` | **Sim** | Lista todos os usuários cadastrados. |
+| `GET` | `/users/{id}` | **Sim** | Busca um usuário específico pelo seu ID. |
+| `GET` | `/users/search?email={email}` | **Sim** | Busca um usuário pelo seu endereço de email. |
+| `PUT` | `/users/{id}` | **Sim** | Atualiza os dados de um usuário. |
+| `DELETE` | `/users/{id}` | **Sim** | Exclui um usuário do sistema. |
 
 #### Exemplos de Requisições (Corpo/Body)
 
@@ -128,7 +162,7 @@ Endpoints para gerenciamento de usuários e autenticação.
   }
   ```
 
-  *Obs: Os papéis (`role`) podem ser `ROLE_ADMINISTRATOR` e `ROLE_CUSTOMER`
+  *Obs: Os papéis (`role`) disponíveis são `ROLE_ADMINISTRATOR` e `ROLE_CUSTOMER`.*
 
 * **`POST /users/login` (Login)**
 
@@ -151,16 +185,15 @@ Endpoints para gerenciamento de usuários e autenticação.
 
 Endpoints para gerenciar os agendamentos de serviços.
 
-| Método   | Endpoint             | Autenticação | Descrição                                        |
-| :------- | :------------------- | :----------- | :----------------------------------------------- |
-| `POST`   | `/agendamentos`      | **Sim** | Cria um novo agendamento.                        |
-| `GET`    | `/agendamentos`      | **Sim** | Lista todos os agendamentos (pode ser filtrado). |
-| `DELETE` | `/agendamentos/{id}` | **Sim** | Cancela/exclui um agendamento.                   |
+| Método | Endpoint | Autenticação | Descrição |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/agendamentos` | **Sim** | Cria um novo agendamento. |
+| `GET` | `/agendamentos` | **Sim** | Lista todos os agendamentos (pode ser filtrado). |
+| `DELETE` | `/agendamentos/{id}` | **Sim** | Cancela/exclui um agendamento. |
 
 #### Exemplo de Requisição (Corpo/Body)
 
 * **`POST /agendamentos` (Criar Agendamento)**
-  *O corpo da requisição deve conter as informações necessárias para o agendamento, como o ID do cliente, do prestador e do serviço.*
   ```json
   {
       "clientId": 1,
@@ -169,7 +202,7 @@ Endpoints para gerenciar os agendamentos de serviços.
       "scheduledDateTime": "2025-10-20T14:00:00"
   }
   ```
-  *Nota: Os endpoints de agendamento e os demais vistos na documentação do postman estão em construção e podem não estar totalmente implementados.*
+  *Nota: Os endpoints de agendamento e outros módulos ainda estão em desenvolvimento e podem não estar totalmente implementados.*
 
 -----
 
