@@ -27,13 +27,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
-
     private final UserAuthenticationFilter userAuthenticationFilter;
 
     /**
-     * Construtor para injeção de dependência do filtro de autenticação customizado.
+     * Construtor que recebe o filtro de autenticação personalizado.
      *
-     * @param userAuthenticationFilter Filtro responsável por processar o token JWT das requisições.
+     * @param userAuthenticationFilter O filtro de autenticação que processa os tokens JWT.
      */
     public SecurityConfiguration(UserAuthenticationFilter userAuthenticationFilter) {
         this.userAuthenticationFilter = userAuthenticationFilter;
@@ -44,7 +43,12 @@ public class SecurityConfiguration {
      */
     public static final String [] ENDPOINTS_WITH_AUTHENTICATION_NOT_REQUIRED = {
             "/api/v1/users/login",
-            "/api/v1/users"
+            "/api/v1/users",
+            "/v3/api-docs/**",
+            "/v3/api-docs",
+            "/v3/api-docs.yaml",
+            "/swagger-ui/**",
+            "/swagger-ui.html"
     };
 
     /**
@@ -53,8 +57,7 @@ public class SecurityConfiguration {
     public static final String [] ENDPOINTS_WITH_AUTHENTICATION_REQUIRED = {
             "/api/v1/appointments",
             "/api/v1/appointments/**",
-            "/api/v1/users/search",
-            "/api/v1/users/id"
+            "/api/v1/users/**"
     };
 
     /**
