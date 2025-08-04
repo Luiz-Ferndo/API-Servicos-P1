@@ -39,6 +39,19 @@
 				},
 				{
 					"name": "User Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response = pm.response.json();",
+									"pm.environment.set(\"JWT_TOKEN\", response.token);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -72,7 +85,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzZXJ2aWNvLWFwaSIsImlhdCI6MTc1NDIzNTk5NiwiZXhwIjoxNzU0MjUwMzk2LCJzdWIiOiJhYWFAYWFhLmNvbSJ9._3cHms0XTw2DtmhonJGpa0XrCd75YEjZvW5WwPwfZds",
+									"value": "{{JWT_TOKEN}}",
 									"type": "string"
 								}
 							]
@@ -109,7 +122,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzZXJ2aWNvLWFwaSIsImlhdCI6MTc1NDIzNTQ5NSwiZXhwIjoxNzU0MjQ5ODk1LCJzdWIiOiJjb250YWN0LmRvdWdjdW5oYTFAZ21haWwuY29tIn0.5OxqevEeWWSt_3cfTUTx1wfNLUHl_x_Asp1uJWtuyTA",
+									"value": "{{JWT_TOKEN}}",
 									"type": "string"
 								}
 							]
@@ -166,13 +179,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/users/1",
+							"raw": "{{base_url}}/users/2",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"users",
-								"1"
+								"2"
 							]
 						}
 					},
@@ -245,7 +258,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/users/search?email=teste@teste.com",
+							"raw": "{{base_url}}/users/search?email=teste@gmail.com",
 							"host": [
 								"{{base_url}}"
 							],
@@ -256,7 +269,7 @@
 							"query": [
 								{
 									"key": "email",
-									"value": "teste@teste.com"
+									"value": "teste@gmail.com"
 								}
 							]
 						}
