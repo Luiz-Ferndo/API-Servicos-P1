@@ -208,5 +208,5 @@ Endpoints para gerenciar os agendamentos de serviços.
 
 ## 📚 Documentação Complementar
 
-* [Requisitos](https://www.google.com/search?q=./Documentacao/requisitos.md)
-* [Caso de Uso](https://www.google.com/search?q=./Documentacao/caso_de_uso.md)
+* [Requisitos](Documentação/requisitos.md)
+* [Caso de Uso](Documentação/caso_de_uso.md)
