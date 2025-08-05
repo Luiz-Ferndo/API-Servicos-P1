@@ -77,4 +77,14 @@ public class ApiExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
+
+    @ExceptionHandler(PermissaoNaoEncontradaException.class)
+    public ResponseEntity<ApiError> handlePermissaoNaoEncontrada(PermissaoNaoEncontradaException ex, HttpServletRequest request) {
+        ApiError error = new ApiError(
+                HttpStatus.NOT_FOUND,
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
 }
