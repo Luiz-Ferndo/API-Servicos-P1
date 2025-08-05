@@ -184,6 +184,11 @@ public class UserService {
      * @return O {@link RecoveryUserDto} correspondente.
      */
     private RecoveryUserDto convertToUserDto(User user) {
-        return new RecoveryUserDto(user.getId(), user.getEmail(), user.getRoles());
+        List<String> roleNames = user.getRoles().stream()
+                .map(role -> role.getName().name())
+                .collect(Collectors.toList());
+
+        return new RecoveryUserDto(user.getId(), user.getEmail(), roleNames);
     }
+
 }

@@ -3,6 +3,8 @@ package com.prestacaoservicos.entity;
 import com.prestacaoservicos.enums.RoleNameEnum;
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "role")
 public class Role {
@@ -14,6 +16,14 @@ public class Role {
     @Enumerated(EnumType.STRING)
     @Column(name = "nm_role")
     private RoleNameEnum name;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "role_permission",
+            joinColumns = @JoinColumn(name = "cd_role"),
+            inverseJoinColumns = @JoinColumn(name = "permission_id")
+    )
+    private List<Permission> permissions;
 
     public Role() {
     }
@@ -28,8 +38,12 @@ public class Role {
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+
     public RoleNameEnum getName() { return name; }
     public void setName(RoleNameEnum name) { this.name = name; }
+
+    public List<Permission> getPermissions() { return permissions; }
+    public void setPermissions(List<Permission> permissions) { this.permissions = permissions; }
 
     @Override
     public boolean equals(Object o) {

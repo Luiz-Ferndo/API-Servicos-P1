@@ -18,11 +18,11 @@ public class User {
     @Column(name = "ds_password", nullable = false, length = 255)
     private String password;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_role",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
+            joinColumns = @JoinColumn(name = "cd_user"),
+            inverseJoinColumns = @JoinColumn(name = "cd_role")
     )
     private List<Role> roles;
 

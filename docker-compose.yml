@@ -33,6 +33,8 @@ services:
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       JWT_EXPIRATION_TIME: ${JWT_EXPIRATION_TIME}
       JWT_ISSUER: ${JWT_ISSUER}
+      USER_ADMIN_PASSWORD: ${USER_ADMIN_PASSWORD}
+      USER_ADMIN_EMAIL: ${USER_ADMIN_EMAIL}
     depends_on:
       postgres:
         condition: service_healthy
