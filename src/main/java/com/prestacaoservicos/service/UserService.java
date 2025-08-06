@@ -9,6 +9,7 @@ import com.prestacaoservicos.exception.CredenciaisInvalidasException;
 import com.prestacaoservicos.exception.EnumInvalidoException;
 import com.prestacaoservicos.exception.RecursoNaoEncontradoException;
 import com.prestacaoservicos.exception.RegraNegocioException;
+import com.prestacaoservicos.repository.RoleRepository;
 import com.prestacaoservicos.repository.UserRepository;
 import com.prestacaoservicos.security.config.SecurityConfiguration;
 import com.prestacaoservicos.security.userdetails.UserDetailsImpl;
@@ -32,15 +33,17 @@ public class UserService {
     private final JwtTokenService jwtTokenService;
     private final UserRepository userRepository;
     private final SecurityConfiguration securityConfiguration;
+    private final RoleRepository roleRepository;
 
     public UserService(AuthenticationManager authenticationManager,
                        JwtTokenService jwtTokenService,
                        UserRepository userRepository,
-                       SecurityConfiguration securityConfiguration) {
+                       SecurityConfiguration securityConfiguration, RoleRepository roleRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenService = jwtTokenService;
         this.userRepository = userRepository;
         this.securityConfiguration = securityConfiguration;
+        this.roleRepository = roleRepository;
     }
 
     /**
@@ -81,10 +84,13 @@ public class UserService {
             throw new EnumInvalidoException("A role '" + createUserDto.role() + "' é inválida.");
         }
 
+        Role role = roleRepository.findByName(roleEnum)
+                .orElseThrow(() -> new RegraNegocioException("A role '" + roleEnum + "' não existe no sistema."));
+
         User newUser = User.builder()
                 .email(createUserDto.email())
                 .password(securityConfiguration.passwordEncoder().encode(createUserDto.password()))
-                .roles(List.of(Role.builder().name(roleEnum).build()))
+                .roles(List.of(role))
                 .build();
 
         userRepository.save(newUser);
@@ -190,5 +196,4 @@ public class UserService {
 
         return new RecoveryUserDto(user.getId(), user.getEmail(), roleNames);
     }
-
 }
