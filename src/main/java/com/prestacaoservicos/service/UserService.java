@@ -112,18 +112,11 @@ public class UserService {
      * @param id O ID do usuário.
      * @return O {@link RecoveryUserDto} correspondente.
      * @throws RecursoNaoEncontradoException se o usuário não for encontrado.
-     * @throws RuntimeException se ocorrer um erro ao buscar o usuário.
      */
     public RecoveryUserDto findUserById(Long id) {
-        try {
-            User user = userRepository.findById(id)
-                    .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário com ID " + id + " não encontrado."));
-            return convertToUserDto(user);
-        } catch (RecursoNaoEncontradoException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao buscar usuário por ID.", e);
-        }
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário com ID " + id + " não encontrado."));
+        return convertToUserDto(user);
     }
 
     /**
@@ -131,18 +124,11 @@ public class UserService {
      * @param email O email do usuário.
      * @return O {@link RecoveryUserDto} correspondente.
      * @throws RecursoNaoEncontradoException se o usuário não for encontrado.
-     * @throws RuntimeException se ocorrer um erro ao buscar o usuário.
      */
     public RecoveryUserDto findUserByEmail(String email) {
-        try {
-            User user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário com email '" + email + "' não encontrado."));
-            return convertToUserDto(user);
-        } catch (RecursoNaoEncontradoException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao buscar usuário por email.", e);
-        }
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário com email '" + email + "' não encontrado."));
+        return convertToUserDto(user);
     }
 
     /**
