@@ -6,7 +6,6 @@ import com.prestacaoservicos.entity.Role;
 import com.prestacaoservicos.entity.User;
 import com.prestacaoservicos.enums.RoleNameEnum;
 import com.prestacaoservicos.exception.CredenciaisInvalidasException;
-import com.prestacaoservicos.exception.EnumInvalidoException;
 import com.prestacaoservicos.exception.RecursoNaoEncontradoException;
 import com.prestacaoservicos.exception.RegraNegocioException;
 import com.prestacaoservicos.repository.RoleRepository;
@@ -19,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +35,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final SecurityConfiguration securityConfiguration;
     private final RoleRepository roleRepository;
+    private final String DEFAULT_TOKEN_TYPE = "Bearer";
 
     public UserService(AuthenticationManager authenticationManager,
                        JwtTokenService jwtTokenService,
@@ -65,7 +66,6 @@ public class UserService {
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
             String token = jwtTokenService.generateToken(userDetails);
-            String tokenType = "Bearer";
             long expiresIn = jwtTokenService.getExpirationInSeconds();
 
             AuthResponseDto.UserInfo userInfo = new AuthResponseDto.UserInfo(
@@ -79,7 +79,7 @@ public class UserService {
 
             return new AuthResponseDto(
                     token,
-                    tokenType,
+                    DEFAULT_TOKEN_TYPE,
                     expiresIn,
                     userInfo
             );
@@ -93,6 +93,7 @@ public class UserService {
      * @param createUserDto DTO contendo os dados do novo usuário.
      * @throws RegraNegocioException se o email já estiver em uso ou a role não existir.
      */
+    @Transactional
     public void createUser(CreateUserDto createUserDto) {
         if (userRepository.findByEmail(createUserDto.email()).isPresent()) {
             throw new RegraNegocioException("O email informado já está em uso.");
@@ -119,6 +120,7 @@ public class UserService {
      * Retorna uma lista com todos os usuários do sistema.
      * @return Uma lista de {@link RecoveryUserDto}.
      */
+    @Transactional(readOnly = true)
     public List<RecoveryUserDto> listAllUsers() {
         return userRepository.findAll()
                 .stream()
@@ -132,6 +134,7 @@ public class UserService {
      * @return O {@link RecoveryUserDto} correspondente.
      * @throws RecursoNaoEncontradoException se o usuário não for encontrado.
      */
+    @Transactional(readOnly = true)
     public RecoveryUserDto findUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário com ID " + id + " não encontrado."));
@@ -144,6 +147,7 @@ public class UserService {
      * @return O {@link RecoveryUserDto} correspondente.
      * @throws RecursoNaoEncontradoException se o usuário não for encontrado.
      */
+    @Transactional(readOnly = true)
     public RecoveryUserDto findUserByEmail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário com email '" + email + "' não encontrado."));
@@ -158,6 +162,7 @@ public class UserService {
      * @throws RecursoNaoEncontradoException se o usuário não for encontrado.
      * @throws RegraNegocioException se o novo email já estiver em uso por outro usuário.
      */
+    @Transactional
     public RecoveryUserDto updateUser(Long id, UpdateUserDto updateUserDto) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário com ID " + id + " não encontrado para atualização."));
@@ -185,6 +190,7 @@ public class UserService {
      * @param id O ID do usuário a ser deletado.
      * @throws RecursoNaoEncontradoException se o usuário não for encontrado.
      */
+    @Transactional
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
             throw new RecursoNaoEncontradoException("Usuário com ID " + id + " não encontrado para exclusão.");

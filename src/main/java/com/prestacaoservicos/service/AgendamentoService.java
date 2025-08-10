@@ -9,6 +9,7 @@ import com.prestacaoservicos.repository.AgendamentoRepository;
 import com.prestacaoservicos.repository.ClienteRepository;
 import com.prestacaoservicos.repository.PrestadorRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -65,6 +66,7 @@ public class AgendamentoService {
      * @throws RegraNegocioException      Se alguma regra de negócio for violada.
      * @throws RecursoNaoEncontradoException Se o cliente ou o prestador não forem encontrados.
      */
+    @Transactional
     public Agendamento agendar(Long clienteId, Long prestadorId, LocalDateTime dataHora) {
         if (dataHora.isBefore(LocalDateTime.now().plusHours(24))) {
             throw new RegraNegocioException("Agendamentos devem ser feitos com 24h de antecedência.");
@@ -98,11 +100,12 @@ public class AgendamentoService {
      * Regra de negócio: O cancelamento só é permitido com no mínimo 12 horas de antecedência.
      * Após o cancelamento, um reembolso é processado.
      *
-     * @param id     O ID do agendamento a ser cancelado.
+     * @param id O ID do agendamento a ser cancelado.
      * @param motivo O motivo pelo qual o agendamento está sendo cancelado.
      * @throws RecursoNaoEncontradoException Se o agendamento não for encontrado.
-     * @throws RegraNegocioException      Se o cancelamento for tentado fora da janela permitida.
+     * @throws RegraNegocioException Se o cancelamento for tentado fora da janela permitida.
      */
+    @Transactional
     public void cancelar(Long id, String motivo) {
         Agendamento ag = agendamentoRepo.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Agendamento não encontrado."));

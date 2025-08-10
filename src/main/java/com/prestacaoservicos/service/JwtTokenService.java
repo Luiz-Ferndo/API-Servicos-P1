@@ -46,6 +46,12 @@ public class JwtTokenService {
     private String ISSUER;
 
     /**
+     * Tempo de expiração do token em segundos.
+     * Este valor é fixo em 3600 segundos (1 hora).
+     */
+    private final Long EXPIRATION_TIME_IN_SECONDS = 3600L;
+
+    /**
      * Gera um novo token JWT para o usuário especificado.
      * O token conterá o nome de usuário como "subject" e terá um tempo de expiração
      * definido pela propriedade {@code JWT_EXPIRATION_TIME}.
@@ -94,7 +100,7 @@ public class JwtTokenService {
      * @return tempo de expiração configurado (em segundos).
      */
     public long getExpirationInSeconds() {
-        return EXPIRATION_TIME * 3600;
+        return EXPIRATION_TIME * EXPIRATION_TIME_IN_SECONDS;
     }
 
     /**
