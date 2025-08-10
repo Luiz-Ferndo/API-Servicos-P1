@@ -33,24 +33,32 @@ public enum StatusAgendamentoEnum {
 
     public static StatusAgendamentoEnum fromCodigo(Integer codigo) {
         if (codigo == null) {
-            throw new EnumInvalidoException("Código de status não pode ser nulo.");
+            throw new EnumInvalidoException(
+                    "Código do StatusAgendamentoEnum não pode ser nulo."
+            );
         }
 
         return Arrays.stream(values())
                 .filter(status -> status.getCodigo().equals(codigo))
                 .findFirst()
-                .orElseThrow(() -> new EnumInvalidoException("Código de status inválido: " + codigo));
+                .orElseThrow(() -> new EnumInvalidoException(
+                        "Código inválido para StatusAgendamentoEnum: " + codigo
+                ));
     }
 
     @JsonCreator
     public static StatusAgendamentoEnum fromDescricao(String descricao) {
         if (descricao == null || descricao.isBlank()) {
-            throw new EnumInvalidoException("Descrição de status não pode ser vazia.");
+            throw new EnumInvalidoException(
+                    "Descrição do StatusAgendamentoEnum não pode ser nula ou vazia."
+            );
         }
 
         return Arrays.stream(values())
                 .filter(status -> status.getDescricao().equalsIgnoreCase(descricao.trim()))
                 .findFirst()
-                .orElseThrow(() -> new EnumInvalidoException("Descrição de status inválida: " + descricao));
+                .orElseThrow(() -> new EnumInvalidoException(
+                        "Descrição inválida para StatusAgendamentoEnum: '" + descricao + "'"
+                ));
     }
 }

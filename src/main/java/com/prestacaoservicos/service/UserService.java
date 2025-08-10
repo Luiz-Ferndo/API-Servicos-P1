@@ -17,6 +17,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -47,42 +48,57 @@ public class UserService {
     }
 
     /**
-     * Autentica um usuário e retorna um token JWT se as credenciais forem válidas.
-     * @param loginUserDto DTO com email e senha.
+     * Autentica um usuário com base no email e senha fornecidos.
+     * @param loginUserDto DTO contendo email e senha do usuário.
+     * @return Um {@link AuthResponseDto} contendo o token JWT e informações do usuário.
      * @throws CredenciaisInvalidasException se as credenciais forem inválidas.
-     * @return DTO contendo o token JWT.
      */
-    public RecoveryJwtTokenDto authenticateUser(LoginUserDto loginUserDto) {
+    public AuthResponseDto authenticateUser(LoginUserDto loginUserDto) {
         try {
             UsernamePasswordAuthenticationToken authToken =
-                    new UsernamePasswordAuthenticationToken(loginUserDto.email(), loginUserDto.password());
+                    new UsernamePasswordAuthenticationToken(
+                            loginUserDto.email(),
+                            loginUserDto.password()
+                    );
 
             Authentication authentication = authenticationManager.authenticate(authToken);
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-            return new RecoveryJwtTokenDto(jwtTokenService.generateToken(userDetails));
+            String token = jwtTokenService.generateToken(userDetails);
+            String tokenType = "Bearer";
+            long expiresIn = jwtTokenService.getExpirationInSeconds();
+
+            AuthResponseDto.UserInfo userInfo = new AuthResponseDto.UserInfo(
+                    userDetails.getId(),
+                    userDetails.getUsername(),
+                    userDetails.getAuthorities()
+                            .stream()
+                            .map(GrantedAuthority::getAuthority)
+                            .toList()
+            );
+
+            return new AuthResponseDto(
+                    token,
+                    tokenType,
+                    expiresIn,
+                    userInfo
+            );
         } catch (AuthenticationException e) {
             throw new CredenciaisInvalidasException("Email ou senha inválidos.");
         }
     }
 
     /**
-     * Cria um novo usuário no sistema, com validação de email e role.
-     * @param createUserDto DTO com dados para criação.
-     * @throws RegraNegocioException se o email já estiver em uso.
-     * @throws EnumInvalidoException se a role fornecida for inválida.
+     * Cria um novo usuário no sistema.
+     * @param createUserDto DTO contendo os dados do novo usuário.
+     * @throws RegraNegocioException se o email já estiver em uso ou a role não existir.
      */
     public void createUser(CreateUserDto createUserDto) {
         if (userRepository.findByEmail(createUserDto.email()).isPresent()) {
             throw new RegraNegocioException("O email informado já está em uso.");
         }
 
-        RoleNameEnum roleEnum;
-        try {
-            roleEnum = RoleNameEnum.valueOf(createUserDto.role().toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new EnumInvalidoException("A role '" + createUserDto.role() + "' é inválida.");
-        }
+        RoleNameEnum roleEnum = createUserDto.role();
 
         Role role = roleRepository.findByName(roleEnum)
                 .orElseThrow(() -> new RegraNegocioException("A role '" + roleEnum + "' não existe no sistema."));

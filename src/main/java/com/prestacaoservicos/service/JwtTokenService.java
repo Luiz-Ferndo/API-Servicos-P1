@@ -90,6 +90,14 @@ public class JwtTokenService {
     }
 
     /**
+     * Retorna o tempo de expiração do token em segundos.
+     * @return tempo de expiração configurado (em segundos).
+     */
+    public long getExpirationInSeconds() {
+        return EXPIRATION_TIME * 3600;
+    }
+
+    /**
      * Gera o timestamp de criação do token.
      * Utiliza o fuso horário de "America/Recife".
      *
