@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,10 +30,10 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "Usuário autenticado com sucesso"),
             @ApiResponse(responseCode = "401", description = "Credenciais inválidas")
     })
-    @PostMapping("/login")
-    public ResponseEntity<RecoveryJwtTokenDto> authenticateUser(@RequestBody LoginUserDto loginUserDto) {
-        RecoveryJwtTokenDto token = userService.authenticateUser(loginUserDto);
-        return new ResponseEntity<>(token, HttpStatus.OK);
+    @PostMapping("/auth/login")
+    public ResponseEntity<AuthResponseDto> authenticateUser(@Valid @RequestBody LoginUserDto loginUserDto) {
+        AuthResponseDto response = userService.authenticateUser(loginUserDto);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "Criar usuário", description = "Cria um novo usuário no sistema")
@@ -41,7 +42,7 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Dados inválidos")
     })
     @PostMapping
-    public ResponseEntity<Void> createUser(@RequestBody CreateUserDto createUserDto) {
+    public ResponseEntity<Void> createUser(@Valid @RequestBody CreateUserDto createUserDto) {
         userService.createUser(createUserDto);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -88,6 +89,7 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<RecoveryUserDto> updateUser(
             @Parameter(description = "ID do usuário") @PathVariable Long id,
+            @Valid
             @RequestBody UpdateUserDto updateUserDto) {
         RecoveryUserDto updatedUser = userService.updateUser(id, updateUserDto);
         return ResponseEntity.ok(updatedUser);

@@ -42,7 +42,7 @@ public class SecurityConfiguration {
      * Endpoints públicos que não requerem autenticação.
      */
     public static final String [] ENDPOINTS_WITH_AUTHENTICATION_NOT_REQUIRED = {
-            "/api/v1/users/login",
+            "/api/v1/users/auth/login",
             "/api/v1/users",
             "/v3/api-docs/**",
             "/v3/api-docs",
