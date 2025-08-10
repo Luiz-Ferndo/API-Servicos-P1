@@ -4,6 +4,7 @@ import com.prestacaoservicos.entity.Cliente;
 import com.prestacaoservicos.exception.RecursoNaoEncontradoException;
 import com.prestacaoservicos.repository.ClienteRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +35,7 @@ public class ClienteService {
      *
      * @return Uma lista de {@link Cliente}. A lista pode estar vazia.
      */
+    @Transactional(readOnly = true)
     public List<Cliente> listar() {
         return clienteRepository.findAll();
     }
@@ -44,6 +46,7 @@ public class ClienteService {
      * @param id O ID do cliente a ser buscado.
      * @return Um {@link Optional} contendo o cliente, se encontrado, ou vazio caso contrário.
      */
+    @Transactional(readOnly = true)
     public Optional<Cliente> buscarPorId(Long id) {
         return clienteRepository.findById(id);
     }
@@ -54,6 +57,7 @@ public class ClienteService {
      * @param cliente O objeto {@link Cliente} a ser salvo.
      * @return O cliente salvo, com o ID preenchido pelo banco de dados.
      */
+    @Transactional
     public Cliente salvar(Cliente cliente) {
         return clienteRepository.save(cliente);
     }
@@ -66,6 +70,7 @@ public class ClienteService {
      * @return O cliente com os dados atualizados.
      * @throws RecursoNaoEncontradoException se nenhum cliente for encontrado com o ID fornecido.
      */
+    @Transactional
     public Cliente atualizar(Long id, Cliente cliente) {
         return clienteRepository.findById(id).map(c -> {
             c.setNome(cliente.getNome());
@@ -80,6 +85,7 @@ public class ClienteService {
      * @param id O ID do cliente a ser deletado.
      * @throws RecursoNaoEncontradoException se nenhum cliente for encontrado com o ID fornecido.
      */
+    @Transactional
     public void deletar(Long id) {
         if (!clienteRepository.existsById(id)) {
             throw new RecursoNaoEncontradoException("Cliente não encontrado");
