@@ -7,6 +7,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -42,11 +43,9 @@ public class SecurityConfiguration {
      * Endpoints públicos que não requerem autenticação.
      */
     public static final String [] ENDPOINTS_WITH_AUTHENTICATION_NOT_REQUIRED = {
-            "/api/v1/users/auth/login",
+            "/api/v1/auth/login",
             "/api/v1/users",
             "/v3/api-docs/**",
-            "/v3/api-docs",
-            "/v3/api-docs.yaml",
             "/swagger-ui/**",
             "/swagger-ui.html"
     };
@@ -75,32 +74,27 @@ public class SecurityConfiguration {
     };
 
     /**
-     * Define a cadeia de filtros de segurança que processa as requisições HTTP.
+     * Configura o filtro de segurança da aplicação.
      * <p>
-     * Configurações aplicadas:
-     * <ul>
-     * <li>Desabilita o CSRF (adequado para APIs stateless).</li>
-     * <li>Define a política de sessão como STATELESS (não cria sessões HTTP).</li>
-     * <li>Define as permissões de acesso para cada conjunto de endpoints.</li>
-     * <li>Bloqueia qualquer requisição não mapeada explicitamente.</li>
-     * <li>Adiciona o filtro de autenticação JWT antes do filtro padrão do Spring.</li>
-     * </ul>
+     * Define as regras de autorização para os endpoints, desabilita o CSRF,
+     * e configura a política de sessão como stateless (sem estado).
      *
-     * @param httpSecurity Objeto para construção das regras de segurança.
-     * @return O bean {@link SecurityFilterChain} configurado.
-     * @throws Exception Se ocorrer um erro durante a configuração.
+     * @param http A configuração de segurança HTTP.
+     * @return O {@link SecurityFilterChain} configurado.
+     * @throws Exception Se ocorrer um erro ao configurar o filtro de segurança.
      */
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        return httpSecurity.csrf().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and().authorizeHttpRequests()
-                .requestMatchers(ENDPOINTS_WITH_AUTHENTICATION_NOT_REQUIRED).permitAll()
-                .requestMatchers(ENDPOINTS_WITH_AUTHENTICATION_REQUIRED).authenticated()
-                .requestMatchers(ENDPOINTS_ADMINISTRATOR).hasRole("ADMINISTRATOR")
-                .requestMatchers(ENDPOINTS_CUSTOMER).hasRole("CUSTOMER")
-                .anyRequest().denyAll()
-                .and().addFilterBefore(userAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(ENDPOINTS_WITH_AUTHENTICATION_NOT_REQUIRED).permitAll()
+                        .requestMatchers(ENDPOINTS_ADMINISTRATOR).hasRole("ADMINISTRATOR")
+                        .requestMatchers(ENDPOINTS_CUSTOMER).hasRole("CUSTOMER")
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(userAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

@@ -16,7 +16,7 @@ import java.util.List;
 
 @Tag(name = "Usuários", description = "Operações relacionadas à entidade de usuário")
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/v1")
 public class UserController {
 
     private final UserService userService;
@@ -41,7 +41,7 @@ public class UserController {
             @ApiResponse(responseCode = "201", description = "Usuário criado com sucesso"),
             @ApiResponse(responseCode = "400", description = "Dados inválidos")
     })
-    @PostMapping
+    @PostMapping("/users")
     public ResponseEntity<Void> createUser(@Valid @RequestBody CreateUserDto createUserDto) {
         userService.createUser(createUserDto);
         return new ResponseEntity<>(HttpStatus.CREATED);
@@ -51,7 +51,7 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de usuários retornada com sucesso")
     })
-    @GetMapping
+    @GetMapping("/users")
     public ResponseEntity<List<RecoveryUserDto>> listAllUsers() {
         List<RecoveryUserDto> users = userService.listAllUsers();
         return ResponseEntity.ok(users);
@@ -62,7 +62,7 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "Usuário encontrado"),
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     })
-    @GetMapping("/{id}")
+    @GetMapping("/users/{id}")
     public ResponseEntity<RecoveryUserDto> findUserById(
             @Parameter(description = "ID do usuário a ser buscado") @PathVariable Long id) {
         RecoveryUserDto user = userService.findUserById(id);
@@ -74,7 +74,7 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "Usuário encontrado"),
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     })
-    @GetMapping("/search")
+    @GetMapping("/users/search")
     public ResponseEntity<RecoveryUserDto> findUserByEmail(
             @Parameter(description = "Endereço de email do usuário") @RequestParam String email) {
         RecoveryUserDto user = userService.findUserByEmail(email);
@@ -86,7 +86,7 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso"),
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     })
-    @PutMapping("/{id}")
+    @PutMapping("/users/{id}")
     public ResponseEntity<RecoveryUserDto> updateUser(
             @Parameter(description = "ID do usuário") @PathVariable Long id,
             @Valid
@@ -100,7 +100,7 @@ public class UserController {
             @ApiResponse(responseCode = "204", description = "Usuário deletado com sucesso"),
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     })
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/users/{id}")
     public ResponseEntity<Void> deleteUser(
             @Parameter(description = "ID do usuário") @PathVariable Long id) {
         userService.deleteUser(id);

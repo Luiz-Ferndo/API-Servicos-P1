@@ -2,23 +2,22 @@ package com.prestacaoservicos.exception;
 
 import java.util.List;
 
+/**
+ * Exceção personalizada para indicar que um valor de enumeração é inválido.
+ * Extende RuntimeException para indicar que é uma exceção não verificada.
+ */
 public class EnumInvalidoException extends RuntimeException {
     private String campo;
     private Object valorRecebido;
     private List<String> valoresValidos;
 
+    /**
+     * Construtor que recebe uma mensagem de erro.
+     *
+     * @param mensagem A mensagem de erro a ser exibida.
+     */
     public EnumInvalidoException(String mensagem) {
         super(mensagem);
-    }
-
-    public EnumInvalidoException(String campo, Object valorRecebido, List<String> valoresValidos) {
-        super(String.format(
-                "Valor inválido '%s' para o campo '%s'. Valores válidos: %s",
-                valorRecebido, campo, valoresValidos
-        ));
-        this.campo = campo;
-        this.valorRecebido = valorRecebido;
-        this.valoresValidos = valoresValidos;
     }
 
     public String getCampo() {
