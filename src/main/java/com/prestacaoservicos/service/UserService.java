@@ -99,6 +99,9 @@ public class UserService {
         }
 
         RoleNameEnum roleEnum = createUserDto.role();
+        if (roleEnum == null) {
+            throw new RegraNegocioException("A role deve ser informada.");
+        }
 
         Role role = roleRepository.findByName(roleEnum)
                 .orElseThrow(() -> new RegraNegocioException("A role '" + roleEnum + "' não existe no sistema."));
@@ -150,15 +153,16 @@ public class UserService {
     /**
      * Atualiza os dados de um usuário existente.
      * @param id O ID do usuário a ser atualizado.
-     * @param updateUserDto DTO com os novos dados.
-     * @return O {@link RecoveryUserDto} com os dados atualizados.
+     * @param updateUserDto DTO contendo os novos dados do usuário.
+     * @return O {@link RecoveryUserDto} atualizado.
      * @throws RecursoNaoEncontradoException se o usuário não for encontrado.
+     * @throws RegraNegocioException se o novo email já estiver em uso por outro usuário.
      */
     public RecoveryUserDto updateUser(Long id, UpdateUserDto updateUserDto) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário com ID " + id + " não encontrado para atualização."));
 
-        if (updateUserDto.email() != null && !updateUserDto.email().equals(existingUser.getEmail())) {
+        if (!updateUserDto.email().equals(existingUser.getEmail())) {
             Optional<User> userWithNewEmail = userRepository.findByEmail(updateUserDto.email());
             if (userWithNewEmail.isPresent() && !userWithNewEmail.get().getId().equals(id)) {
                 throw new RegraNegocioException("O novo email informado já está em uso por outro usuário.");
@@ -167,10 +171,12 @@ public class UserService {
         }
 
         if (updateUserDto.name() != null) {
-            // @TODO: Implementar lógica para atualizar o nome.
+            // Atualize o nome se necessário
+
         }
 
         User updatedUser = userRepository.save(existingUser);
+
         return convertToUserDto(updatedUser);
     }
 
