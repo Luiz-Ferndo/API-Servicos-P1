@@ -26,10 +26,12 @@ public record AuthResponseDto(
      * @param id    Identificador único do usuário.
      * @param email Email do usuário.
      * @param roles Lista de roles (perfis) atribuídos ao usuário.
+     * @param permissions Lista de permissões concedidas ao usuário.
      */
     public static record UserInfo(
             Long id,
             String email,
-            List<String> roles
+            List<String> roles,
+            List<String> permissions
     ) {}
 }
