@@ -1,10 +1,13 @@
 package com.prestacaoservicos.dto;
 
 import com.prestacaoservicos.enums.RoleNameEnum;
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
+import java.util.List;
 
 /**
  * DTO para criação de um novo usuário.
@@ -16,6 +19,7 @@ import jakarta.validation.constraints.Size;
  * @param email    Endereço de email do usuário. Deve ser um email válido e não pode ser vazio.
  * @param password Senha do usuário. Deve conter pelo menos 6 caracteres e não pode ser vazia.
  * @param role     Papel (role) do usuário no sistema. Não pode ser nulo.
+ * @param phones   Lista de telefones associados ao usuário. Pode ser nula, mas se fornecida, deve conter objetos válidos.
  */
 public record CreateUserDto(
         @NotBlank(message = "Nome não pode ser vazio")
@@ -31,5 +35,8 @@ public record CreateUserDto(
         String password,
 
         @NotNull(message = "Role deve ser informada")
-        RoleNameEnum role
+        RoleNameEnum role,
+
+        @Nullable
+        List<PhoneDto> phones
 ) {}
