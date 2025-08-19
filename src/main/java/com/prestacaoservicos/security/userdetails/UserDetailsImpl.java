@@ -1,5 +1,6 @@
 package com.prestacaoservicos.security.userdetails;
 
+import com.prestacaoservicos.entity.Permission;
 import com.prestacaoservicos.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -43,6 +44,22 @@ public class UserDetailsImpl implements UserDetails {
         return user.getRoles()
                 .stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName().name()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Retorna as permissões concedidas ao usuário.
+     * <p>
+     * Mapeia as permissões associadas às roles do usuário para uma coleção de strings,
+     * representando os nomes das permissões.
+     *
+     * @return Uma coleção de strings contendo os nomes das permissões.
+     */
+    public Collection<String> getPermissions() {
+        return user.getRoles()
+                .stream()
+                .flatMap(role -> role.getPermissions().stream())
+                .map(Permission::getName)
                 .collect(Collectors.toList());
     }
 

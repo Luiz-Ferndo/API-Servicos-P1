@@ -74,6 +74,9 @@ public class UserService {
                     userDetails.getAuthorities()
                             .stream()
                             .map(GrantedAuthority::getAuthority)
+                            .toList(),
+                    userDetails.getPermissions()
+                            .stream()
                             .toList()
             );
 
