@@ -70,6 +70,7 @@ public class UserService {
 
             AuthResponseDto.UserInfo userInfo = new AuthResponseDto.UserInfo(
                     userDetails.getId(),
+                    userDetails.getName(),
                     userDetails.getUsername(),
                     userDetails.getAuthorities()
                             .stream()
@@ -111,6 +112,7 @@ public class UserService {
                 .orElseThrow(() -> new RegraNegocioException("A role '" + roleEnum + "' não existe no sistema."));
 
         User newUser = User.builder()
+                .name(createUserDto.name())
                 .email(createUserDto.email())
                 .password(securityConfiguration.passwordEncoder().encode(createUserDto.password()))
                 .roles(List.of(role))

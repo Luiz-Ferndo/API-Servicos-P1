@@ -1,6 +1,8 @@
 package com.prestacaoservicos.entity;
 
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.util.Objects;
 
 @Entity
@@ -18,13 +20,13 @@ public class Prestador {
     @JoinColumn(name = "cd_servico", nullable = false)
     private Servico servico;
 
-    @Column(name = "vl_servico", nullable = false)
-    private Double preco;
+    @Column(name = "vl_servico", nullable = false, precision = 10, scale = 2)
+    private BigDecimal preco;
 
     public Prestador() {
     }
 
-    public Prestador(Long id, String nome, Servico servico, Double preco) {
+    public Prestador(Long id, String nome, Servico servico, BigDecimal preco) {
         this.id = id;
         this.nome = nome;
         this.servico = servico;
@@ -55,11 +57,11 @@ public class Prestador {
         this.servico = servico;
     }
 
-    public Double getPreco() {
+    public BigDecimal getPreco() {
         return preco;
     }
 
-    public void setPreco(Double preco) {
+    public void setPreco(BigDecimal preco) {
         this.preco = preco;
     }
 
