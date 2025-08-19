@@ -1,5 +1,6 @@
 package com.prestacaoservicos.entity;
 
+import com.prestacaoservicos.enums.PhoneTypeEnum;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -59,6 +60,12 @@ public class User {
     public void setPassword(String password) { this.password = password; }
     public List<Role> getRoles() { return roles; }
     public void setRoles(List<Role> roles) { this.roles = roles; }
+    public List<UserPhone> getPhones() {
+        return phones;
+    }
+    public void setPhones(List<UserPhone> phones) {
+        this.phones = phones;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -84,6 +91,7 @@ public class User {
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", roles=" + roles +
+                ", phones=" + phones +
                 '}';
     }
 
@@ -92,6 +100,8 @@ public class User {
         private String email;
         private String password;
         private List<Role> roles;
+        private List<UserPhone> phones;
+        private PhoneTypeEnum type;
 
         public UserBuilder name(String name) {
             this.name = name;
@@ -110,6 +120,16 @@ public class User {
 
         public UserBuilder roles(List<Role> roles) {
             this.roles = roles;
+            return this;
+        }
+
+        public UserBuilder type(PhoneTypeEnum type) {
+            this.type = type;
+            return this;
+        }
+
+        public UserBuilder phones(List<UserPhone> phones) {
+            this.phones = phones;
             return this;
         }
 

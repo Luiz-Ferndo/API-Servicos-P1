@@ -4,11 +4,13 @@ import com.prestacaoservicos.dto.*;
 import com.prestacaoservicos.dto.RecoveryUserDto;
 import com.prestacaoservicos.entity.Role;
 import com.prestacaoservicos.entity.User;
+import com.prestacaoservicos.entity.UserPhone;
 import com.prestacaoservicos.enums.RoleNameEnum;
 import com.prestacaoservicos.exception.CredenciaisInvalidasException;
 import com.prestacaoservicos.exception.RecursoNaoEncontradoException;
 import com.prestacaoservicos.exception.RegraNegocioException;
 import com.prestacaoservicos.repository.RoleRepository;
+import com.prestacaoservicos.repository.UserPhoneRepository;
 import com.prestacaoservicos.repository.UserRepository;
 import com.prestacaoservicos.security.config.SecurityConfiguration;
 import com.prestacaoservicos.security.userdetails.UserDetailsImpl;
@@ -20,6 +22,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,17 +38,22 @@ public class UserService {
     private final UserRepository userRepository;
     private final SecurityConfiguration securityConfiguration;
     private final RoleRepository roleRepository;
+    private final UserPhoneRepository userPhoneRepository;
+
     private final String DEFAULT_TOKEN_TYPE = "Bearer";
 
     public UserService(AuthenticationManager authenticationManager,
                        JwtTokenService jwtTokenService,
                        UserRepository userRepository,
-                       SecurityConfiguration securityConfiguration, RoleRepository roleRepository) {
+                       SecurityConfiguration securityConfiguration,
+                       RoleRepository roleRepository,
+                          UserPhoneRepository userPhoneRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenService = jwtTokenService;
         this.userRepository = userRepository;
         this.securityConfiguration = securityConfiguration;
         this.roleRepository = roleRepository;
+        this.userPhoneRepository = userPhoneRepository;
     }
 
     /**
@@ -116,7 +124,21 @@ public class UserService {
                 .email(createUserDto.email())
                 .password(securityConfiguration.passwordEncoder().encode(createUserDto.password()))
                 .roles(List.of(role))
+                .phones(new ArrayList<>())
                 .build();
+
+        if (createUserDto.phones() != null) {
+            for (PhoneDto phoneDto : createUserDto.phones()) {
+                if (phoneDto.type() == null) {
+                    throw new RegraNegocioException("O tipo de telefone deve ser informado.");
+                }
+                UserPhone phone = new UserPhone();
+                phone.setPhone(phoneDto.phone());
+                phone.setType(phoneDto.type());
+                phone.setUser(newUser);
+                newUser.getPhones().add(phone);
+            }
+        }
 
         userRepository.save(newUser);
     }
