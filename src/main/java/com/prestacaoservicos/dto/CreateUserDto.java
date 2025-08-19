@@ -12,11 +12,16 @@ import jakarta.validation.constraints.Size;
  * Contém os dados necessários para cadastrar um usuário no sistema,
  * incluindo validações para garantir a integridade dos dados.
  *
+ * @param name     Nome completo do usuário. Deve ter entre 2 e 100 caracteres e não pode ser vazio.
  * @param email    Endereço de email do usuário. Deve ser um email válido e não pode ser vazio.
  * @param password Senha do usuário. Deve conter pelo menos 6 caracteres e não pode ser vazia.
  * @param role     Papel (role) do usuário no sistema. Não pode ser nulo.
  */
 public record CreateUserDto(
+        @NotBlank(message = "Nome não pode ser vazio")
+        @Size(min = 2, max = 100, message = "Nome deve ter entre 2 e 100 caracteres")
+        String name,
+
         @Email(message = "Email inválido")
         @NotBlank(message = "Email não pode ser vazio")
         String email,

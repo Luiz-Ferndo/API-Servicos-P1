@@ -11,13 +11,17 @@ public class Servico {
     @Column(name = "cd_servico")
     private Long codigo;
 
-    @Column(name = "ds_servico", nullable = false, unique = true, length = 100)
+    @Column(name = "nm_servico", nullable = false, length = 100)
+    private String nome;
+
+    @Column(name = "ds_servico", nullable = false, unique = true, length = 255)
     private String descricao;
 
     public Servico() {}
 
-    public Servico(Long codigo, String descricao) {
+    public Servico(Long codigo, String nome, String descricao) {
         this.codigo = codigo;
+        this.nome = nome;
         this.descricao = descricao;
     }
 
@@ -29,20 +33,20 @@ public class Servico {
         this.codigo = codigo;
     }
 
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
     public String getDescricao() {
         return descricao;
     }
 
     public void setDescricao(String descricao) {
         this.descricao = descricao;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Servico)) return false;
-        Servico servico = (Servico) o;
-        return Objects.equals(codigo, servico.codigo);
     }
 
     @Override
@@ -54,6 +58,7 @@ public class Servico {
     public String toString() {
         return "Servico{" +
                 "codigo=" + codigo +
+                ", nome='" + nome + '\'' +
                 ", descricao='" + descricao + '\'' +
                 '}';
     }

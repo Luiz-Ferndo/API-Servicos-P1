@@ -1,6 +1,8 @@
 package com.prestacaoservicos.entity;
 
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -11,6 +13,9 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "cd_user")
     private Long id;
+
+    @Column(name = "nm_user", nullable = false, length = 255)
+    private String name;
 
     @Column(name = "ds_email", nullable = false, unique = true, length = 255)
     private String email;
@@ -26,10 +31,15 @@ public class User {
     )
     private List<Role> roles;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserPhone> phones = new ArrayList<>();
+
+
     public User() {
     }
 
     private User(UserBuilder builder) {
+        this.name = builder.name;
         this.email = builder.email;
         this.password = builder.password;
         this.roles = builder.roles;
@@ -41,6 +51,8 @@ public class User {
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
     public String getPassword() { return password; }
@@ -68,6 +80,7 @@ public class User {
     public String toString() {
         return "User{" +
                 "id=" + id +
+                ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", roles=" + roles +
@@ -75,9 +88,15 @@ public class User {
     }
 
     public static class UserBuilder {
+        private String name;
         private String email;
         private String password;
         private List<Role> roles;
+
+        public UserBuilder name(String name) {
+            this.name = name;
+            return this;
+        }
 
         public UserBuilder email(String email) {
             this.email = email;

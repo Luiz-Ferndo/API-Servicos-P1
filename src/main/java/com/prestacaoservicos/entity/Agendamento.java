@@ -2,6 +2,7 @@ package com.prestacaoservicos.entity;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import java.util.Objects;
@@ -25,7 +26,7 @@ public class Agendamento {
     @Column(name = "dt_agendamento", nullable = false)
     private LocalDateTime dataHora;
     @Column(name = "vl_agendamento", nullable = false)
-    private Double valor;
+    private BigDecimal valor;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cd_status", nullable = false)
@@ -37,7 +38,7 @@ public class Agendamento {
     public Agendamento() {
     }
 
-    public Agendamento(Long id, Cliente cliente, Prestador prestador, LocalDateTime dataHora, Double valor, DominioStatusAgendamento dominioStatusAgendamento, String motivoCancelamento) {
+    public Agendamento(Long id, Cliente cliente, Prestador prestador, LocalDateTime dataHora, BigDecimal valor, DominioStatusAgendamento dominioStatusAgendamento, String motivoCancelamento) {
         this.id = id;
         this.cliente = cliente;
         this.prestador = prestador;
@@ -79,11 +80,11 @@ public class Agendamento {
         this.dataHora = dataHora;
     }
 
-    public Double getValor() {
+    public BigDecimal getValor() {
         return valor;
     }
 
-    public void setValor(Double valor) {
+    public void setValor(BigDecimal valor) {
         this.valor = valor;
     }
 

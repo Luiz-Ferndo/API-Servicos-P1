@@ -75,6 +75,17 @@ public class UserDetailsImpl implements UserDetails {
     }
 
     /**
+     * Retorna o nome do usuário.
+     * <p>
+     * Este método é utilizado pelo Spring Security para exibir o nome do usuário autenticado.
+     *
+     * @return O nome do usuário.
+     */
+    public String getName() {
+        return user.getName();
+    }
+
+    /**
      * Retorna a senha usada para autenticar o usuário.
      *
      * @return A senha do usuário.

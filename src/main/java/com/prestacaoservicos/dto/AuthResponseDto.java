@@ -30,6 +30,7 @@ public record AuthResponseDto(
      */
     public static record UserInfo(
             Long id,
+            String name,
             String email,
             List<String> roles,
             List<String> permissions

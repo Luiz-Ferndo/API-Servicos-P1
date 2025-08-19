@@ -33,6 +33,11 @@ import java.util.List;
  */
 @Configuration
 public class DataInitializer {
+    /**
+     * Nome do usuário administrador padrão, injetado a partir das propriedades da aplicação.
+     */
+    @Value("${USER_ADMIN_NAME}")
+    private String USER_ADMIN_NAME;
 
     /**
      * Email do usuário administrador padrão, injetado a partir das propriedades da aplicação.
@@ -135,6 +140,7 @@ public class DataInitializer {
 
             if (userRepo.findByEmail(USER_ADMIN_EMAIL).isEmpty()) {
                 User adminUser = User.builder()
+                        .name(USER_ADMIN_NAME)
                         .email(USER_ADMIN_EMAIL)
                         .password(passwordEncoder.encode(USER_ADMIN_PASSWORD))
                         .roles(List.of(admin))
