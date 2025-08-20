@@ -2,6 +2,7 @@ package com.prestacaoservicos.service;
 
 import com.prestacaoservicos.dto.*;
 import com.prestacaoservicos.dto.RecoveryUserDto;
+import com.prestacaoservicos.entity.Permission;
 import com.prestacaoservicos.entity.Role;
 import com.prestacaoservicos.entity.User;
 import com.prestacaoservicos.entity.UserPhone;
@@ -24,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -127,17 +128,8 @@ public class UserService {
                 .phones(new ArrayList<>())
                 .build();
 
-        if (createUserDto.phones() != null) {
-            for (PhoneDto phoneDto : createUserDto.phones()) {
-                if (phoneDto.type() == null) {
-                    throw new RegraNegocioException("O tipo de telefone deve ser informado.");
-                }
-                UserPhone phone = new UserPhone();
-                phone.setPhone(phoneDto.phone());
-                phone.setType(phoneDto.type());
-                phone.setUser(newUser);
-                newUser.getPhones().add(phone);
-            }
+        if (createUserDto.phones() != null && !createUserDto.phones().isEmpty()) {
+            addUserPhones(newUser, createUserDto.phones());
         }
 
         userRepository.save(newUser);
@@ -192,19 +184,29 @@ public class UserService {
     @Transactional
     public RecoveryUserDto updateUser(Long id, UpdateUserDto updateUserDto) {
         User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário com ID " + id + " não encontrado para atualização."));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado."));
 
-        if (!updateUserDto.email().equals(existingUser.getEmail())) {
-            Optional<User> userWithNewEmail = userRepository.findByEmail(updateUserDto.email());
-            if (userWithNewEmail.isPresent() && !userWithNewEmail.get().getId().equals(id)) {
-                throw new RegraNegocioException("O novo email informado já está em uso por outro usuário.");
+        if (updateUserDto.name() != null) {
+            existingUser.setName(updateUserDto.name());
+        }
+
+        if (updateUserDto.email() != null &&
+                !Objects.equals(updateUserDto.email(), existingUser.getEmail())) {
+
+            if (userRepository.findByEmail(updateUserDto.email()).isPresent()) {
+                throw new RegraNegocioException("O email informado já está em uso.");
             }
             existingUser.setEmail(updateUserDto.email());
         }
 
-        if (updateUserDto.name() != null) {
-            // Atualize o nome se necessário
+        if (updateUserDto.password() != null) {
+            existingUser.setPassword(securityConfiguration.passwordEncoder()
+                    .encode(updateUserDto.password()));
+        }
 
+        if (updateUserDto.phones() != null) {
+            existingUser.getPhones().clear();
+            addUserPhones(existingUser, updateUserDto.phones());
         }
 
         User updatedUser = userRepository.save(existingUser);
@@ -226,15 +228,60 @@ public class UserService {
     }
 
     /**
-     * Método auxiliar para converter uma entidade User para RecoveryUserDto.
+     * Converte uma entidade {@link User} em um {@link RecoveryUserDto}.
+     *
      * @param user A entidade {@link User}.
-     * @return O {@link RecoveryUserDto} correspondente.
+     * @return O DTO {@link RecoveryUserDto} correspondente.
      */
     private RecoveryUserDto convertToUserDto(User user) {
-        List<String> roleNames = user.getRoles().stream()
-                .map(role -> role.getName().name())
-                .collect(Collectors.toList());
+        List<String> roleNames = (user.getRoles() == null) ?
+                List.of() :
+                user.getRoles().stream()
+                        .map(role -> role.getName().name())
+                        .toList();
 
-        return new RecoveryUserDto(user.getId(), user.getEmail(), roleNames);
+        List<String> permissions = (user.getRoles() == null) ?
+                List.of() :
+                user.getRoles().stream()
+                        .flatMap(role -> role.getPermissions().stream())
+                        .map(Permission::getName)
+                        .distinct()
+                        .toList();
+
+        List<PhoneDto> phones = (user.getPhones() == null) ?
+                List.of() :
+                user.getPhones().stream()
+                        .map(phone -> new PhoneDto(phone.getPhone(), phone.getType()))
+                        .toList();
+
+        return new RecoveryUserDto(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                roleNames,
+                permissions,
+                phones
+        );
     }
+
+
+    /**
+     * Adiciona telefones a um usuário.
+     * @param user O usuário ao qual os telefones serão adicionados.
+     * @param phones Lista de DTOs de telefone a serem adicionados.
+     * @throws RegraNegocioException se algum telefone não tiver tipo definido.
+     */
+    private void addUserPhones(User user, List<PhoneDto> phones) {
+        for (PhoneDto phoneDto : phones) {
+            if (phoneDto.type() == null) {
+                throw new RegraNegocioException("O tipo de telefone deve ser informado.");
+            }
+            UserPhone phone = new UserPhone();
+            phone.setPhone(phoneDto.phone());
+            phone.setType(phoneDto.type());
+            phone.setUser(user);
+            user.getPhones().add(phone);
+        }
+    }
+
 }
