@@ -1,35 +1,40 @@
 package com.prestacaoservicos.config;
 
+import org.springframework.context.annotation.Configuration;
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 /**
- * Classe de configuração para a documentação OpenAPI (Swagger) da aplicação.
- * <p>
- * Define o bean {@link OpenAPI} personalizado com as informações básicas da API,
- * como título, versão e descrição, que serão exibidas na interface Swagger UI.
- * <p>
- * Esta configuração possibilita a geração automática da documentação da API REST.
- *
- * @since 1.0
- * @version 1.0
+ * Configuração do OpenAPI para documentação da API.
  */
 @Configuration
 public class OpenAPIConfig {
 
     /**
-     * Cria e configura um bean {@link OpenAPI} com informações personalizadas da API.
+     * Configura o OpenAPI com informações da API e esquema de segurança JWT.
      *
-     * @return objeto {@link OpenAPI} com as informações básicas definidas (título, versão e descrição).
+     * @return a instância configurada do OpenAPI
      */
     @Bean
     public OpenAPI customOpenAPI() {
+        final String securitySchemeName = "bearerAuth";
+
         return new OpenAPI()
-                .info(new Info()
-                        .title("API de Agendamento de Serviços")
-                        .version("1.0")
-                        .description("Documentação Swagger"));
+                .info(new Info().title("API de Prestação de Serviços").version("v1"))
+                .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
+                .components(
+                        new Components()
+                                .addSecuritySchemes(securitySchemeName,
+                                        new SecurityScheme()
+                                                .name(securitySchemeName)
+                                                .type(SecurityScheme.Type.HTTP)
+                                                .scheme("bearer")
+                                                .bearerFormat("JWT")
+                                )
+                );
     }
 }

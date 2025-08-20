@@ -21,7 +21,7 @@ import java.util.List;
  * Utiliza anotações do Spring {@code @ControllerAdvice} e {@code @ExceptionHandler}
  * para tratamento global e centralizado de erros.
  */
-@ControllerAdvice
+@RestControllerAdvice
 public class ApiExceptionHandler {
 
     /**

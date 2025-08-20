@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -30,6 +31,7 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "Usuário autenticado com sucesso"),
             @ApiResponse(responseCode = "401", description = "Credenciais inválidas")
     })
+    @SecurityRequirements({})
     @PostMapping("/auth/login")
     public ResponseEntity<AuthResponseDto> authenticateUser(@Valid @RequestBody LoginUserDto loginUserDto) {
         AuthResponseDto response = userService.authenticateUser(loginUserDto);
