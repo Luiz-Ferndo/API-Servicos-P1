@@ -89,7 +89,7 @@ public class AgendamentoService {
         ag.setPrestador(prestador);
         ag.setDataHora(dataHora);
         ag.setStatus(null); // O status pode ser definido posteriormente, ex: "CONFIRMADO"
-        ag.setValor(prestador.getPreco());
+        // ag.setValor(prestador.getPreco());
 
         return agendamentoRepo.save(ag);
     }

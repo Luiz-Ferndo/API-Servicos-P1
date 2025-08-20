@@ -74,7 +74,6 @@ public class ClienteService {
     public Cliente atualizar(Long id, Cliente cliente) {
         return clienteRepository.findById(id).map(c -> {
             c.setNome(cliente.getNome());
-            c.setEmail(cliente.getEmail());
             return clienteRepository.save(c);
         }).orElseThrow(() -> new RecursoNaoEncontradoException("Cliente não encontrado"));
     }

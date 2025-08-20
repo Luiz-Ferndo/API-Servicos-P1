@@ -25,6 +25,7 @@ public class Agendamento {
 
     @Column(name = "dt_agendamento", nullable = false)
     private LocalDateTime dataHora;
+
     @Column(name = "vl_agendamento", nullable = false)
     private BigDecimal valor;
 

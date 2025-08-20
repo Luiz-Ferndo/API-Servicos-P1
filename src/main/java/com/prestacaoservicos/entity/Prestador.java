@@ -13,24 +13,16 @@ public class Prestador {
     @Column(name = "cd_prestador")
     private Long id;
 
-    @Column(name = "nm_prestador", nullable = false, length = 255)
-    private String nome;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cd_servico", nullable = false)
     private Servico servico;
 
-    @Column(name = "vl_servico", nullable = false, precision = 10, scale = 2)
-    private BigDecimal preco;
-
     public Prestador() {
     }
 
-    public Prestador(Long id, String nome, Servico servico, BigDecimal preco) {
+    public Prestador(Long id, Servico servico) {
         this.id = id;
-        this.nome = nome;
         this.servico = servico;
-        this.preco = preco;
     }
 
     public Long getId() {
@@ -41,14 +33,6 @@ public class Prestador {
         this.id = id;
     }
 
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
     public Servico getServico() {
         return servico;
     }
@@ -57,13 +41,6 @@ public class Prestador {
         this.servico = servico;
     }
 
-    public BigDecimal getPreco() {
-        return preco;
-    }
-
-    public void setPreco(BigDecimal preco) {
-        this.preco = preco;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -71,23 +48,19 @@ public class Prestador {
         if (o == null || getClass() != o.getClass()) return false;
         Prestador prestador = (Prestador) o;
         return Objects.equals(id, prestador.id) &&
-                Objects.equals(nome, prestador.nome) &&
-                Objects.equals(servico, prestador.servico) &&
-                Objects.equals(preco, prestador.preco);
+                Objects.equals(servico, prestador.servico);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, nome, servico, preco);
+        return Objects.hash(id, servico);
     }
 
     @Override
     public String toString() {
         return "Prestador{" +
                 "id=" + id +
-                ", nome='" + nome + '\'' +
                 ", servico='" + servico + '\'' +
-                ", preco=" + preco +
                 '}';
     }
 }

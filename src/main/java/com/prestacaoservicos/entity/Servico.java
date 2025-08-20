@@ -1,6 +1,8 @@
 package com.prestacaoservicos.entity;
 
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.util.Objects;
 
 @Entity
@@ -14,14 +16,18 @@ public class Servico {
     @Column(name = "nm_servico", nullable = false, length = 100)
     private String nome;
 
-    @Column(name = "ds_servico", nullable = false, unique = true, length = 255)
+    @Column(name = "vl_servico", nullable = false, precision = 10, scale = 2)
+    private BigDecimal valor;
+
+    @Column(name = "ds_servico", nullable = false, length = 255)
     private String descricao;
 
     public Servico() {}
 
-    public Servico(Long codigo, String nome, String descricao) {
+    public Servico(Long codigo, String nome, BigDecimal valor, String descricao) {
         this.codigo = codigo;
         this.nome = nome;
+        this.valor = valor;
         this.descricao = descricao;
     }
 
@@ -49,6 +55,25 @@ public class Servico {
         this.descricao = descricao;
     }
 
+    public BigDecimal getValor() {
+        return valor;
+    }
+
+    public void setValor(BigDecimal valor) {
+        this.valor = valor;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Servico servico = (Servico) o;
+        return Objects.equals(codigo, servico.codigo) &&
+                Objects.equals(nome, servico.nome) &&
+                Objects.equals(valor, servico.valor) &&
+                Objects.equals(descricao, servico.descricao);
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(codigo);
@@ -59,6 +84,7 @@ public class Servico {
         return "Servico{" +
                 "codigo=" + codigo +
                 ", nome='" + nome + '\'' +
+                ", valor=" + valor +
                 ", descricao='" + descricao + '\'' +
                 '}';
     }
