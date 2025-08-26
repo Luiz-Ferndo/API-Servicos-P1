@@ -1,5 +1,3 @@
------
-
 # 🚀 Sistema de Prestação de Serviços
 
 Este é o repositório da API para o Sistema de Prestação de Serviços, desenvolvido com Spring Boot.
@@ -7,8 +5,6 @@ Este é o repositório da API para o Sistema de Prestação de Serviços, desenv
 ## 📝 Estudo de Caso
 
 Uma empresa deseja desenvolver um Sistema de Prestação de Serviços que permita o gerenciamento eficiente de clientes, serviços e prestadores. O sistema deve possibilitar que clientes consultem os tipos de serviços oferecidos, agendem serviços com prestadores disponíveis, realizem o pagamento utilizando diferentes formas e recebam notificações sobre o status de seus agendamentos.
-
------
 
 ## 🛠️ Tecnologias Utilizadas
 
@@ -20,8 +16,6 @@ O projeto foi construído utilizando as seguintes tecnologias:
 * **Containerização:** Docker
 * **Documentação:** Postman e Swagger
 
------
-
 ## ⚙️ Pré-requisitos
 
 Antes de começar, garanta que você tenha as seguintes ferramentas instaladas em seu ambiente:
@@ -30,8 +24,6 @@ Antes de começar, garanta que você tenha as seguintes ferramentas instaladas e
 * [Docker](https://www.docker.com/products/docker-desktop/) e [Docker Compose](https://docs.docker.com/compose/install/)
 * [Maven](https://maven.apache.org/download.cgi)
 * Um cliente de API como [Postman](https://www.postman.com/downloads/)
-
------
 
 ## ▶️ Como Executar o Projeto
 
@@ -61,8 +53,6 @@ Siga os passos abaixo para executar a aplicação localmente.
 4.  **Acesse a aplicação:**
     A API estará disponível em `http://localhost:8080`.
 
------
-
 ## 🐳 Usando o Script de Desenvolvimento (`dev.sh`)
 
 Para facilitar o ciclo de desenvolvimento, o projeto inclui um script de shell (`dev.sh`) que automatiza as tarefas mais comuns.
@@ -75,16 +65,16 @@ chmod +x dev.sh
 
 **Comandos disponíveis:**
 
-| Comando | Descrição |
-| :--- | :--- |
-| `./dev.sh build` | Compila o código-fonte e empacota a aplicação em um arquivo JAR. |
-| `./dev.sh up` | Constrói e sobe os containers da aplicação e do banco de dados. |
-| `./dev.sh down` | Para e remove os containers da aplicação. |
-| `./dev.sh logs` | Exibe os logs dos containers em tempo real, útil para depuração. |
-| `./dev.sh clean` | Para os containers, remove os volumes (dados do banco) e limpa o sistema. |
-| `./dev.sh dev` | Executa um ciclo de desenvolvimento completo (down, up, logs). |
-| `./dev.sh install` | **Instala o comando `dev` nativamente no seu terminal (para Bash/Zsh).** |
-| `./dev.sh uninstall` | **Remove a instalação do comando `dev` do seu terminal.** |
+| Comando         | Descrição                                                              |
+| :-------------- | :--------------------------------------------------------------------- |
+| `./dev.sh build`  | Compila o código-fonte e empacota a aplicação em um arquivo JAR.         |
+| `./dev.sh up`     | Constrói e sobe os containers da aplicação e do banco de dados.        |
+| `./dev.sh down`   | Para e remove os containers da aplicação.                              |
+| `./dev.sh logs`   | Exibe os logs dos containers em tempo real, útil para depuração.       |
+| `./dev.sh clean`  | Para os containers, remove os volumes (dados do banco) e limpa o sistema. |
+| `./dev.sh dev`    | Executa um ciclo de desenvolvimento completo (down, up, logs).         |
+| `./dev.sh install`  | **Instala o comando `dev` nativamente no seu terminal (para Bash/Zsh).** |
+| `./dev.sh uninstall`| **Remove a instalação do comando `dev` do seu terminal.** |
 
 ### 🚀 Tornando o Comando Nativo (Opcional)
 
@@ -119,94 +109,135 @@ Para evitar ter que digitar `./dev.sh` toda vez, você pode "instalar" o script 
 
 Para reverter o processo, basta executar `./dev.sh uninstall`.
 
------
-
-## 🔑 Autenticação
-
-A maioria dos endpoints desta API é protegida e requer um token de autenticação **JWT (JSON Web Token)**. Para obtê-lo, você deve primeiro registrar um usuário e depois realizar o login.
-
-1.  **Registre-se** usando o endpoint `POST /users`.
-2.  **Faça login** com o endpoint `POST /users/login` para receber seu token.
-3.  **Envie o token** no cabeçalho de autorização das requisições protegidas:
-    `Authorization: Bearer SEU_TOKEN_JWT`
-
------
-
 ## 📖 Documentação da API
 
 A URL base para todas as requisições é: `http://localhost:8080`
 
-### Módulo de Usuários
+### 🔑 Autenticação
 
-Endpoints para gerenciamento de usuários e autenticação.
+A maioria dos endpoints desta API é protegida e requer um token de autenticação **JWT (JSON Web Token)**. Para obtê-lo, você deve primeiro registrar um usuário e depois realizar o login.
 
-| Método | Endpoint | Autenticação | Descrição |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/users` | **Não** | Registra um novo usuário no sistema. |
-| `POST` | `/users/login` | **Não** | Autentica um usuário e retorna um token JWT. |
-| `GET` | `/users` | **Sim** | Lista todos os usuários cadastrados. |
-| `GET` | `/users/{id}` | **Sim** | Busca um usuário específico pelo seu ID. |
-| `GET` | `/users/search?email={email}` | **Sim** | Busca um usuário pelo seu endereço de email. |
-| `PUT` | `/users/{id}` | **Sim** | Atualiza os dados de um usuário. |
-| `DELETE` | `/users/{id}` | **Sim** | Exclui um usuário do sistema. |
+1.  **Registre-se** usando o endpoint `POST /users`.
+2.  **Faça login** com o endpoint `POST /auth/login` para receber seu token.
+3.  **Envie o token** no cabeçalho de autorização das requisições protegidas:
+    `Authorization: Bearer SEU_TOKEN_JWT`
 
-#### Exemplos de Requisições (Corpo/Body)
+| Método | Endpoint      | Autenticação | Descrição                                     |
+| :----- | :------------ | :----------- | :-------------------------------------------- |
+| `POST` | `/auth/login` | **Não** | Autentica um usuário e retorna um token JWT. |
 
-* **`POST /users` (Registrar Usuário)**
+#### Exemplo de Requisição (Login)
 
+* **`POST /auth/login`**
   ```json
   {
-      "email": "cliente@example.com",
-      "password": "umaSenhaForte123",
-      "role": "ROLE_ADMINISTRATOR"
+      "email": "joao.eletricista@provedor.com",
+      "password": "senhaForte123"
   }
   ```
 
-  *Obs: Os papéis (`role`) disponíveis são `ROLE_ADMINISTRATOR` e `ROLE_CUSTOMER`.*
+### 👤 Módulo de Usuários
 
-* **`POST /users/login` (Login)**
+Endpoints para o gerenciamento completo de usuários.
+
+| Método   | Endpoint                      | Autenticação | Descrição                                  |
+| :------- | :---------------------------- | :----------- | :----------------------------------------- |
+| `POST`   | `/users`                      | **Não** | Registra um novo usuário no sistema.       |
+| `GET`    | `/users`                      | **Sim** | Lista todos os usuários cadastrados.         |
+| `GET`    | `/users/{id}`                 | **Sim** | Busca um usuário específico pelo seu ID.   |
+| `GET`    | `/users/search?email={email}` | **Sim** | Busca um usuário pelo seu endereço de email. |
+| `PUT`    | `/users/{id}`                 | **Sim** | Atualiza os dados de um usuário.           |
+| `DELETE` | `/users/{id}`                 | **Sim** | Exclui um usuário do sistema.              |
+
+#### Exemplos de Requisição (Usuários)
+
+* **`POST /users` (Registrar um Prestador de Serviço)**
 
   ```json
   {
-      "email": "cliente@example.com",
-      "password": "umaSenhaForte123"
+    "name": "João Silva",
+    "email": "joao.eletricista@provedor.com",
+    "password": "senhaForte123",
+    "role": "ROLE_SERVICE_PROVIDER"
   }
   ```
 
-* **`PUT /users/{id}` (Atualizar Usuário)**
+* **`POST /users` (Registrar um Cliente)**
 
   ```json
   {
-      "email": "novo.email@example.com.br"
+    "name": "Carlos Souza",
+    "email": "carlos.souza@email.com",
+    "password": "outraSenha456",
+    "role": "ROLE_CUSTOMER"
   }
   ```
 
-### Módulo de Agendamentos
+### 🛠️ Módulo de Serviços
 
-Endpoints para gerenciar os agendamentos de serviços.
+Endpoints para o gerenciamento de serviços, que devem ser criados por usuários com a role `SERVICE_PROVIDER`.
 
-| Método | Endpoint | Autenticação | Descrição |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/agendamentos` | **Sim** | Cria um novo agendamento. |
-| `GET` | `/agendamentos` | **Sim** | Lista todos os agendamentos (pode ser filtrado). |
-| `DELETE` | `/agendamentos/{id}` | **Sim** | Cancela/exclui um agendamento. |
+| Método   | Endpoint      | Autenticação | Descrição                                  |
+| :------- | :------------ | :----------- | :----------------------------------------- |
+| `POST`   | `/servicos`   | **Sim** | Cadastra um novo serviço no sistema.       |
+| `GET`    | `/servicos`   | **Não** | Lista todos os serviços disponíveis.       |
+| `GET`    | `/servicos/{id}`| **Não** | Busca um serviço específico pelo seu ID.   |
+| `DELETE` | `/servicos/{id}`| **Sim** | Exclui um serviço do sistema.              |
 
-#### Exemplo de Requisição (Corpo/Body)
+#### Exemplo de Requisição (Serviços)
 
-* **`POST /agendamentos` (Criar Agendamento)**
+* **`POST /servicos` (Cadastrar um Serviço)**
   ```json
   {
-      "clientId": 1,
-      "providerId": 5,
-      "serviceId": 12,
-      "scheduledDateTime": "2025-10-20T14:00:00"
+    "nome": "Manutenção Elétrica Preventiva",
+    "valor": 350.00,
+    "descricao": "Revisão completa de disjuntores, tomadas e pontos de luz para garantir a segurança da residência."
   }
   ```
-  *Nota: Os endpoints de agendamento e outros módulos ainda estão em desenvolvimento e podem não estar totalmente implementados.*
 
------
+### 📅 Módulo de Agendamentos
+
+Endpoints para criar e gerenciar os agendamentos de serviços.
+
+| Método | Endpoint                         | Autenticação | Descrição                                                        |
+| :----- | :------------------------------- | :----------- | :--------------------------------------------------------------- |
+| `POST` | `/agendamentos`                  | **Sim** | Cria um novo agendamento (geralmente por um `CUSTOMER`).           |
+| `GET`  | `/agendamentos`                  | **Sim** | Lista todos os agendamentos (admin).                             |
+| `GET`  | `/agendamentos/cliente/{id}`     | **Sim** | Busca agendamentos de um cliente específico.                   |
+| `GET`  | `/agendamentos/prestador/{id}`   | **Sim** | Busca agendamentos de um prestador específico.                 |
+| `PUT`  | `/agendamentos/{id}/status`      | **Sim** | Atualiza o status de um agendamento (geralmente por um `SERVICE_PROVIDER`). |
+
+#### Exemplos de Requisição (Agendamentos)
+
+* **`POST /agendamentos` (Criar um Agendamento)**
+
+  ```json
+  {
+    "prestadorId": 1,
+    "servicoId": 1,
+    "dataHora": "2025-09-10T10:00:00"
+  }
+  ```
+
+* **`PUT /agendamentos/{id}/status` (Atualizar Status)**
+
+  ```json
+  {
+    "status": "FINALIZADO",
+    "motivo": null
+  }
+  ```
+
+* **`PUT /agendamentos/{id}/status` (Atualizar Status)**
+
+  ```json
+  {
+    "status": "CANCELADO",
+    "motivo": "O cliente solicitou o cancelamento com 24h de antecedência."
+  }
+  ```
 
 ## 📚 Documentação Complementar
 
-* [Requisitos](Documentação/requisitos.md)
-* [Caso de Uso](Documentação/caso_de_uso.md)
+* [Requisitos](https://www.google.com/search?q=Documenta%C3%A7%C3%A3o/requisitos.md)
+* [Caso de Uso](https://www.google.com/search?q=Documenta%C3%A7%C3%A3o/caso_de_uso.md)

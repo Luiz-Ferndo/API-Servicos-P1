@@ -111,32 +111,6 @@ public class AgendamentoService {
     }
 
     /**
-     * Cancela um agendamento existente.
-     *
-     * <p><b>Regra de negócio:</b> O cancelamento só pode ser feito até 12 horas antes do horário agendado.</p>
-     *
-     * @param id     ID do agendamento
-     * @param motivo Motivo informado pelo usuário para o cancelamento
-     * @throws RecursoNaoEncontradoException se o agendamento não for encontrado
-     * @throws RegraNegocioException se o cancelamento ocorrer fora do prazo permitido
-     */
-    @Transactional
-    public void cancelar(Long id, String motivo) {
-        Agendamento ag = agendamentoRepo.findById(id)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Agendamento não encontrado."));
-
-        if (ag.getDataHora().isBefore(LocalDateTime.now().plusHours(12))) {
-            throw new RegraNegocioException("Cancelamento só permitido até 12h antes do horário agendado.");
-        }
-
-        ag.setStatus(StatusAgendamentoEnum.CANCELADO);
-        ag.setMotivoCancelamento(motivo);
-
-        agendamentoRepo.save(ag);
-        pagamentoService.reembolsar(id);
-    }
-
-    /**
      * Lista todos os agendamentos de um cliente.
      *
      * @param clienteId ID do cliente
@@ -164,29 +138,6 @@ public class AgendamentoService {
      */
     public List<Agendamento> listarPorPrestador(Long prestadorId) {
         return agendamentoRepo.findByPrestadorId(prestadorId);
-    }
-
-    /**
-     * Lista os agendamentos do usuário logado, de acordo com seu papel (cliente ou prestador).
-     *
-     * @param userDetails Detalhes do usuário autenticado
-     * @param pageable    Objeto de paginação
-     * @return Página de agendamentos do usuário
-     */
-    public Page<Agendamento> listarAgendamentosDoUsuario(UserDetailsImpl userDetails, Pageable pageable) {
-        Long usuarioId = userDetails.getId();
-
-        Set<String> roles = userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toSet());
-
-        if (roles.contains(RoleNameEnum.ROLE_SERVICE_PROVIDER.name())) {
-            return agendamentoRepo.findByPrestador_Id(usuarioId, pageable);
-        } else if (roles.contains(RoleNameEnum.ROLE_CUSTOMER.name())) {
-            return agendamentoRepo.findByCliente_Id(usuarioId, pageable);
-        }
-
-        return Page.empty(pageable);
     }
 
     /**
