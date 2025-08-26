@@ -178,11 +178,11 @@ Endpoints para o gerenciamento completo de usuários.
 Endpoints para o gerenciamento de serviços, que devem ser criados por usuários com a role `SERVICE_PROVIDER`.
 
 | Método   | Endpoint      | Autenticação | Descrição                                  |
-| :------- | :------------ | :----------- | :----------------------------------------- |
-| `POST`   | `/servicos`   | **Sim** | Cadastra um novo serviço no sistema.       |
-| `GET`    | `/servicos`   | **Não** | Lista todos os serviços disponíveis.       |
-| `GET`    | `/servicos/{id}`| **Não** | Busca um serviço específico pelo seu ID.   |
-| `DELETE` | `/servicos/{id}`| **Sim** | Exclui um serviço do sistema.              |
+| :------- | :------------ |:-------------| :----------------------------------------- |
+| `POST`   | `/servicos`   | **Sim**      | Cadastra um novo serviço no sistema.       |
+| `GET`    | `/servicos`   | **Sim**      | Lista todos os serviços disponíveis.       |
+| `GET`    | `/servicos/{id}`| **Sim**      | Busca um serviço específico pelo seu ID.   |
+| `DELETE` | `/servicos/{id}`| **Sim**      | Exclui um serviço do sistema.              |
 
 #### Exemplo de Requisição (Serviços)
 
@@ -239,5 +239,5 @@ Endpoints para criar e gerenciar os agendamentos de serviços.
 
 ## 📚 Documentação Complementar
 
-* [Requisitos](https://www.google.com/search?q=Documenta%C3%A7%C3%A3o/requisitos.md)
-* [Caso de Uso](https://www.google.com/search?q=Documenta%C3%A7%C3%A3o/caso_de_uso.md)
+* [Requisitos](./Documentação/requisitos.md)
+* [Caso de Uso](./Documentação/caso_de_uso.md)
