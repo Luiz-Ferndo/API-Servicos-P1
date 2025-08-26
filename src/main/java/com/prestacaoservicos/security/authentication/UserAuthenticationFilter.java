@@ -54,18 +54,24 @@ public class UserAuthenticationFilter extends OncePerRequestFilter {
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
 
+        if (isEndpointPublic(request)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String token = recoveryToken(request);
 
-        if (token != null) {
+        if (token != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
                 String subject = jwtTokenService.getSubjectFromToken(token);
 
-                userRepository.findByEmail(subject)
+                userRepository.findByEmailWithRolesAndPermissions(subject)
                         .map(UserDetailsImpl::new)
                         .map(userDetails -> new UsernamePasswordAuthenticationToken(
                                 userDetails, null, userDetails.getAuthorities()))
                         .ifPresent(authentication -> SecurityContextHolder.getContext().setAuthentication(authentication));
-            } catch (Exception e) {
+
+            } catch (JwtInvalidTokenException | IllegalArgumentException e) {
                 throw new JwtInvalidTokenException("Token JWT inválido ou expirado.");
             }
         }
@@ -88,14 +94,13 @@ public class UserAuthenticationFilter extends OncePerRequestFilter {
     }
 
     /**
-     * Verifica se o endpoint da requisição atual é protegido (não público).
+     * Verifica se o endpoint atual é público e não requer autenticação.
      *
      * @param request A requisição HTTP.
-     * @return {@code true} se o endpoint não estiver na lista de endpoints públicos,
-     * {@code false} caso contrário.
+     * @return Verdadeiro se o endpoint for público, falso caso contrário.
      */
-    private boolean checkIfEndpointIsNotPublic(HttpServletRequest request) {
+    private boolean isEndpointPublic(HttpServletRequest request) {
         String requestURI = request.getRequestURI();
-        return !Arrays.asList(SecurityConfiguration.ENDPOINTS_WITH_AUTHENTICATION_NOT_REQUIRED).contains(requestURI);
+        return Arrays.asList(SecurityConfiguration.ENDPOINTS_WITH_AUTHENTICATION_NOT_REQUIRED).contains(requestURI);
     }
 }

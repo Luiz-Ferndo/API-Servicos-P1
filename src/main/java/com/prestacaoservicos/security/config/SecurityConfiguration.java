@@ -15,15 +15,11 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
- * @TODO: Ajustar quais endpoints devem ser públicos e quais devem exigir autenticação.
  * Classe central de configuração para o Spring Security.
  * <p>
  * Habilita a segurança web e define as regras de autenticação e autorização
  * para os endpoints da aplicação, além de configurar os beans essenciais
  * para o funcionamento da segurança.
- *
- * @version 1.0
- * @since 02/08/2025
  */
 @Configuration
 @EnableWebSecurity
@@ -57,16 +53,8 @@ public class SecurityConfiguration {
      * Endpoints que exigem que o usuário esteja autenticado.
      */
     public static final String [] ENDPOINTS_WITH_AUTHENTICATION_REQUIRED = {
-            "/api/v1/appointments",
-            "/api/v1/appointments/**",
+            "/agendamentos/**",
             "/api/v1/users/**"
-    };
-
-    /**
-     * Endpoints acessíveis apenas por usuários com a role 'CUSTOMER'.
-     */
-    public static final String [] ENDPOINTS_CUSTOMER = {
-            "/users/test/customer"
     };
 
     /**
@@ -74,6 +62,22 @@ public class SecurityConfiguration {
      */
     public static final String [] ENDPOINTS_ADMINISTRATOR = {
             "/api/v1/users/test/administrator",
+    };
+
+    /**
+     * Endpoints acessíveis apenas por usuários com a role 'SERVICE_PROVIDER'.
+     * <p>
+     * Estes endpoints são utilizados para operações específicas de prestadores de serviços.
+     */
+    public static final String [] ROLE_SERVICE_PROVIDER = {
+            "/api/v1/service-providers/test/service-provider"
+    };
+
+    /**
+     * Endpoints acessíveis apenas por usuários com a role 'CUSTOMER'.
+     */
+    public static final String [] ENDPOINTS_CUSTOMER = {
+            "/users/test/customer"
     };
 
     /**

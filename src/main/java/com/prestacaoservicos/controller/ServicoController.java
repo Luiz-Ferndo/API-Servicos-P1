@@ -1,82 +1,124 @@
 package com.prestacaoservicos.controller;
 
+import com.prestacaoservicos.dto.ServicoRequestDTO;
+import com.prestacaoservicos.dto.ServicoResponseDTO;
 import com.prestacaoservicos.entity.Servico;
+import com.prestacaoservicos.security.userdetails.UserDetailsImpl;
 import com.prestacaoservicos.service.ServicoService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
-@Tag(name = "Serviços", description = "Operações para gerenciamento de serviços oferecidos")
+/**
+ * Controlador responsável pelas operações relacionadas a {@link Servico}.
+ * <p>
+ * Fornece endpoints REST para criação, atualização, listagem, busca e exclusão de serviços.
+ * </p>
+ *
+ * @author Você
+ * @since 1.0
+ */
 @RestController
 @RequestMapping("/api/v1/servicos")
+@Tag(name = "Serviços", description = "Operações para gerenciamento de serviços")
 public class ServicoController {
 
-    private final ServicoService servicosService;
+    private final ServicoService service;
 
-    public ServicoController(ServicoService servicosService) {
-        this.servicosService = servicosService;
+    /**
+     * Construtor que injeta o {@link ServicoService}.
+     *
+     * @param service serviço responsável pelas regras de negócio dos serviços.
+     */
+    public ServicoController(ServicoService service) {
+        this.service = service;
     }
 
-    @Operation(summary = "Listar todos os serviços", description = "Retorna uma lista de todos os serviços cadastrados.")
-    @ApiResponse(responseCode = "200", description = "Serviços listados com sucesso")
-    @GetMapping
-    public List<Servico> listaServicos() {
-        return servicosService.listar();
-    }
-
-    @Operation(summary = "Buscar serviço por ID", description = "Retorna um serviço específico com base no ID fornecido.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Serviço encontrado"),
-            @ApiResponse(responseCode = "404", description = "Serviço não encontrado")
-    })
-    @GetMapping("/{id}")
-    public Optional<Servico> listaServicosPorId(
-            @Parameter(description = "ID do serviço que deseja buscar", example = "1", required = true)
-            @PathVariable Long id) {
-        return servicosService.buscarPorId(id);
-    }
-
-    @Operation(summary = "Criar novo serviço", description = "Cria um novo serviço no sistema com os dados fornecidos.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Serviço criado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos")
-    })
+    /**
+     * Cria um novo serviço no sistema.
+     *
+     * @param dto          objeto com os dados do serviço a ser criado.
+     * @param usuarioLogado usuário autenticado que está criando o serviço.
+     * @return {@link ResponseEntity} contendo o serviço criado e a URI de localização.
+     */
     @PostMapping
-    public Servico criarServico(
-            @Parameter(description = "Dados do serviço a ser criado", required = true)
-            @RequestBody Servico servico) {
-        return servicosService.salvar(servico);
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'SERVICE_PROVIDER')")
+    @Operation(summary = "Criar um novo serviço", security = @SecurityRequirement(name = "bearerAuth"))
+    public ResponseEntity<ServicoResponseDTO> create(
+            @Valid @RequestBody ServicoRequestDTO dto,
+            @AuthenticationPrincipal UserDetailsImpl usuarioLogado) {
+
+        Servico novoServico = service.create(dto, usuarioLogado);
+
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+                .buildAndExpand(novoServico.getId()).toUri();
+        return ResponseEntity.created(location).body(ServicoResponseDTO.fromEntity(novoServico));
     }
 
-    @Operation(summary = "Atualizar serviço existente", description = "Atualiza um serviço existente com base no ID e nos novos dados fornecidos.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Serviço atualizado com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Serviço não encontrado")
-    })
+    /**
+     * Lista todos os serviços cadastrados no sistema.
+     *
+     * @return {@link ResponseEntity} contendo a lista de serviços disponíveis.
+     */
+    @GetMapping
+    @Operation(summary = "Listar todos os serviços disponíveis")
+    public ResponseEntity<List<ServicoResponseDTO>> findAll() {
+        List<Servico> servicos = service.findAll();
+        List<ServicoResponseDTO> dtos = servicos.stream()
+                .map(ServicoResponseDTO::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
+    }
+
+    /**
+     * Busca um serviço pelo seu identificador único.
+     *
+     * @param id identificador do serviço.
+     * @return {@link ResponseEntity} contendo o serviço encontrado.
+     */
+    @GetMapping("/{id}")
+    @Operation(summary = "Buscar um serviço por ID")
+    public ResponseEntity<ServicoResponseDTO> findById(@PathVariable Long id) {
+        Servico servico = service.findById(id);
+        return ResponseEntity.ok(ServicoResponseDTO.fromEntity(servico));
+    }
+
+    /**
+     * Atualiza os dados de um serviço existente.
+     *
+     * @param id  identificador do serviço a ser atualizado.
+     * @param dto objeto com os novos dados do serviço.
+     * @return {@link ResponseEntity} contendo o serviço atualizado.
+     */
     @PutMapping("/{id}")
-    public Servico atualizarServico(
-            @Parameter(description = "ID do serviço a ser atualizado", example = "1", required = true)
-            @PathVariable Long id,
-            @Parameter(description = "Novos dados do serviço", required = true)
-            @RequestBody Servico servico) {
-        return servicosService.atualizar(id, servico);
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'SERVICE_PROVIDER')")
+    @Operation(summary = "Atualizar um serviço existente", security = @SecurityRequirement(name = "bearerAuth"))
+    public ResponseEntity<ServicoResponseDTO> update(@PathVariable Long id, @Valid @RequestBody ServicoRequestDTO dto) {
+        Servico servicoAtualizado = service.update(id, dto);
+        return ResponseEntity.ok(ServicoResponseDTO.fromEntity(servicoAtualizado));
     }
 
-    @Operation(summary = "Deletar serviço por ID", description = "Remove um serviço do sistema com base no ID informado.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Serviço deletado com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Serviço não encontrado")
-    })
+    /**
+     * Remove um serviço do sistema.
+     *
+     * @param id identificador do serviço a ser excluído.
+     * @return {@link ResponseEntity} sem conteúdo indicando que a operação foi concluída com sucesso.
+     */
     @DeleteMapping("/{id}")
-    public void deletarServico(
-            @Parameter(description = "ID do serviço a ser deletado", example = "1", required = true)
-            @PathVariable Long id) {
-        servicosService.deletar(id);
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'SERVICE_PROVIDER')")
+    @Operation(summary = "Deletar um serviço", security = @SecurityRequirement(name = "bearerAuth"))
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

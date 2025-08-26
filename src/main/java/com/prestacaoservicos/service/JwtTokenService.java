@@ -18,9 +18,6 @@ import java.time.ZonedDateTime;
  * Serviço responsável por gerenciar operações relacionadas a JSON Web Tokens (JWT),
  * como geração e validação. As configurações de chave secreta, tempo de expiração
  * e emissor são injetadas a partir das propriedades da aplicação.
- *
- * @version 1.0
- * @since 02/08/2025
  */
 @Service
 public class JwtTokenService {

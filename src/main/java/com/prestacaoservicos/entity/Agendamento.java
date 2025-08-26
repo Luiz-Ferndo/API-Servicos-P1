@@ -1,5 +1,6 @@
 package com.prestacaoservicos.entity;
 
+import com.prestacaoservicos.enums.StatusAgendamentoEnum;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -16,12 +17,16 @@ public class Agendamento {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cd_cliente", nullable = false)
-    private Cliente cliente;
+    @JoinColumn(name = "cd_cliente_user", nullable = false)
+    private User cliente;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cd_prestador", nullable = false)
-    private Prestador prestador;
+    @JoinColumn(name = "cd_prestador_user", nullable = false)
+    private User prestador;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cd_servico", nullable = false)
+    private Servico servico;
 
     @Column(name = "dt_agendamento", nullable = false)
     private LocalDateTime dataHora;
@@ -29,23 +34,23 @@ public class Agendamento {
     @Column(name = "vl_agendamento", nullable = false)
     private BigDecimal valor;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cd_status", nullable = false)
-    private DominioStatusAgendamento status;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "ds_status", nullable = false, length = 20)
+    private StatusAgendamentoEnum status;
 
     @Column(name = "ds_motivo_cancelamento", length = 255)
     private String motivoCancelamento;
 
-    public Agendamento() {
-    }
+    public Agendamento() {}
 
-    public Agendamento(Long id, Cliente cliente, Prestador prestador, LocalDateTime dataHora, BigDecimal valor, DominioStatusAgendamento dominioStatusAgendamento, String motivoCancelamento) {
+    public Agendamento(Long id, User cliente, User prestador, Servico servico, LocalDateTime dataHora, BigDecimal valor, StatusAgendamentoEnum status, String motivoCancelamento) {
         this.id = id;
         this.cliente = cliente;
         this.prestador = prestador;
+        this.servico = servico;
         this.dataHora = dataHora;
         this.valor = valor;
-        this.status = dominioStatusAgendamento;
+        this.status = status;
         this.motivoCancelamento = motivoCancelamento;
     }
 
@@ -57,20 +62,28 @@ public class Agendamento {
         this.id = id;
     }
 
-    public Cliente getCliente() {
+    public User getCliente() {
         return cliente;
     }
 
-    public void setCliente(Cliente cliente) {
+    public void setCliente(User cliente) {
         this.cliente = cliente;
     }
 
-    public Prestador getPrestador() {
+    public User getPrestador() {
         return prestador;
     }
 
-    public void setPrestador(Prestador prestador) {
+    public void setPrestador(User prestador) {
         this.prestador = prestador;
+    }
+
+    public Servico getServico() {
+        return servico;
+    }
+
+    public void setServico(Servico servico) {
+        this.servico = servico;
     }
 
     public LocalDateTime getDataHora() {
@@ -89,11 +102,11 @@ public class Agendamento {
         this.valor = valor;
     }
 
-    public DominioStatusAgendamento getStatus() {
+    public StatusAgendamentoEnum getStatus() {
         return status;
     }
 
-    public void setStatus(DominioStatusAgendamento status) {
+    public void setStatus(StatusAgendamentoEnum status) {
         this.status = status;
     }
 
@@ -107,21 +120,14 @@ public class Agendamento {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Agendamento that = (Agendamento) o;
-        return Objects.equals(id, that.id) &&
-                Objects.equals(cliente, that.cliente) &&
-                Objects.equals(prestador, that.prestador) &&
-                Objects.equals(dataHora, that.dataHora) &&
-                Objects.equals(valor, that.valor) &&
-                Objects.equals(status, that.status) &&
-                Objects.equals(motivoCancelamento, that.motivoCancelamento);
+        return Objects.equals(id, that.id) && Objects.equals(cliente, that.cliente) && Objects.equals(prestador, that.prestador) && Objects.equals(servico, that.servico) && Objects.equals(dataHora, that.dataHora) && Objects.equals(valor, that.valor) && status == that.status && Objects.equals(motivoCancelamento, that.motivoCancelamento);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, cliente, prestador, dataHora, valor, status, motivoCancelamento);
+        return Objects.hash(id, cliente, prestador, servico, dataHora, valor, status, motivoCancelamento);
     }
 
     @Override
@@ -130,9 +136,10 @@ public class Agendamento {
                 "id=" + id +
                 ", cliente=" + cliente +
                 ", prestador=" + prestador +
+                ", servico=" + servico +
                 ", dataHora=" + dataHora +
                 ", valor=" + valor +
-                ", status='" + status + '\'' +
+                ", status=" + status +
                 ", motivoCancelamento='" + motivoCancelamento + '\'' +
                 '}';
     }

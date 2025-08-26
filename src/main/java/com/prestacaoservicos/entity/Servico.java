@@ -11,7 +11,7 @@ public class Servico {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "cd_servico")
-    private Long codigo;
+    private Long id;
 
     @Column(name = "nm_servico", nullable = false, length = 100)
     private String nome;
@@ -22,21 +22,25 @@ public class Servico {
     @Column(name = "ds_servico", nullable = false, length = 255)
     private String descricao;
 
+    @Column(name = "st_ativo", nullable = false)
+    private boolean ativo = true;
+
     public Servico() {}
 
-    public Servico(Long codigo, String nome, BigDecimal valor, String descricao) {
-        this.codigo = codigo;
+    public Servico(Long id, String nome, BigDecimal valor, String descricao, boolean ativo) {
+        this.id = id;
         this.nome = nome;
         this.valor = valor;
         this.descricao = descricao;
+        this.ativo = ativo;
     }
 
-    public Long getCodigo() {
-        return codigo;
+    public Long getId() {
+        return id;
     }
 
-    public void setCodigo(Long codigo) {
-        this.codigo = codigo;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getNome() {
@@ -63,29 +67,39 @@ public class Servico {
         this.valor = valor;
     }
 
+    public boolean isAtivo() {
+        return ativo;
+    }
+
+    public void setAtivo(boolean ativo) {
+        this.ativo = ativo;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Servico servico = (Servico) o;
-        return Objects.equals(codigo, servico.codigo) &&
+        return Objects.equals(id, servico.id) &&
                 Objects.equals(nome, servico.nome) &&
                 Objects.equals(valor, servico.valor) &&
-                Objects.equals(descricao, servico.descricao);
+                Objects.equals(descricao, servico.descricao) &&
+                Objects.equals(ativo, servico.ativo);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(codigo);
+        return Objects.hash(id);
     }
 
     @Override
     public String toString() {
         return "Servico{" +
-                "codigo=" + codigo +
+                "id=" + id +
                 ", nome='" + nome + '\'' +
                 ", valor=" + valor +
                 ", descricao='" + descricao + '\'' +
+                ", ativo=" + ativo +
                 '}';
     }
 }

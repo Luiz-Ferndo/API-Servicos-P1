@@ -303,4 +303,22 @@ public class ApiExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
+
+    /**
+     * Trata exceções do tipo {@link AcessoNegadoException}.
+     * Retorna erro HTTP 403 - Forbidden quando o usuário não tem permissão para acessar o recurso.
+     *
+     * @param ex      Exceção capturada.
+     * @param request Informações da requisição HTTP.
+     * @return ResponseEntity com status 403 e mensagem detalhada.
+     */
+    @ExceptionHandler(AcessoNegadoException.class)
+    private ResponseEntity<ApiError> handleAcessoNegado(AcessoNegadoException ex, HttpServletRequest request) {
+        ApiError error = new ApiError(
+                HttpStatus.FORBIDDEN,
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    }
 }

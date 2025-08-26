@@ -5,7 +5,6 @@ import com.prestacaoservicos.entity.Role;
 import com.prestacaoservicos.entity.User;
 import com.prestacaoservicos.enums.PermissionEnum;
 import com.prestacaoservicos.enums.RoleNameEnum;
-import com.prestacaoservicos.exception.PermissaoNaoEncontradaException;
 import com.prestacaoservicos.repository.PermissionRepository;
 import com.prestacaoservicos.repository.RoleRepository;
 import com.prestacaoservicos.repository.UserRepository;
@@ -14,67 +13,58 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
- * Classe de configuração responsável por inicializar dados essenciais na aplicação.
- * <p>
- * Cria permissões, papéis (roles) e um usuário administrador padrão ao iniciar o sistema,
- * garantindo que a base mínima de dados de segurança esteja configurada.
- * <p>
- * As permissões são definidas via enums e associadas às roles correspondentes.
- * O usuário administrador padrão é criado com credenciais configuradas via propriedades.
+ * Classe responsável por inicializar os dados básicos do sistema
+ * (permissões, papéis e usuário administrador).
  *
- * @since 1.0
- * @version 1.0
+ * <p>Executada automaticamente ao iniciar a aplicação, garantindo que:
+ * <ul>
+ *     <li>Todas as permissões definidas em {@link PermissionEnum} estejam no banco.</li>
+ *     <li>Papéis de administrador, cliente e prestador sejam criados/atualizados.</li>
+ *     <li>Um usuário administrador padrão seja cadastrado (se não existir).</li>
+ * </ul>
+ * </p>
  */
 @Configuration
 public class DataInitializer {
-    /**
-     * Nome do usuário administrador padrão, injetado a partir das propriedades da aplicação.
-     */
-    @Value("${USER_ADMIN_NAME}")
-    private String USER_ADMIN_NAME;
 
-    /**
-     * Email do usuário administrador padrão, injetado a partir das propriedades da aplicação.
-     */
-    @Value("${user_admin_email}")
-    private String USER_ADMIN_EMAIL;
+    /** Nome do administrador definido em application.properties */
+    @Value("${app.admin.name}")
+    private String adminName;
 
-    /**
-     * Senha do usuário administrador padrão, injetada a partir das propriedades da aplicação.
-     */
-    @Value("${user_admin_password}")
-    private String USER_ADMIN_PASSWORD;
+    /** Email do administrador definido em application.properties */
+    @Value("${app.admin.email}")
+    private String adminEmail;
 
-    /**
-     * Conjunto de permissões atribuídas à role de administrador.
-     */
+    /** Senha do administrador definido em application.properties */
+    @Value("${app.admin.password}")
+    private String adminPassword;
+
+    /** Permissões atribuídas ao papel de Administrador */
     private static final EnumSet<PermissionEnum> ADMIN_PERMISSIONS = EnumSet.of(
             PermissionEnum.MANAGE_USERS,
             PermissionEnum.MANAGE_SERVICES,
             PermissionEnum.VIEW_REPORTS
     );
 
-    /**
-     * Conjunto de permissões atribuídas à role de cliente (customer).
-     */
+    /** Permissões atribuídas ao papel de Cliente */
     private static final EnumSet<PermissionEnum> CUSTOMER_PERMISSIONS = EnumSet.of(
             PermissionEnum.BOOK_SERVICE,
             PermissionEnum.VIEW_APPOINTMENTS,
             PermissionEnum.CANCEL_APPOINTMENT,
             PermissionEnum.MAKE_PAYMENT,
-            PermissionEnum.VIEW_SERVICES,
-            PermissionEnum.VIEW_REPORTS
+            PermissionEnum.VIEW_SERVICES
     );
 
-    /**
-     * Conjunto de permissões atribuídas à role de prestador de serviços (service provider).
-     */
+    /** Permissões atribuídas ao papel de Prestador de Serviço */
     private static final EnumSet<PermissionEnum> PROVIDER_PERMISSIONS = EnumSet.of(
             PermissionEnum.CONFIRM_EXECUTION,
             PermissionEnum.DEFINE_AVAILABILITY,
@@ -82,72 +72,96 @@ public class DataInitializer {
     );
 
     /**
-     * Bean {@link CommandLineRunner} que inicializa os dados de permissões, roles e usuário administrador.
-     * <p>
-     * Executado automaticamente na inicialização da aplicação Spring Boot.
+     * Inicializa os dados básicos da aplicação ao iniciar.
      *
-     * @param permRepo          Repositório para manipulação de permissões.
-     * @param roleRepo          Repositório para manipulação de roles.
-     * @param userRepo          Repositório para manipulação de usuários.
-     * @param passwordEncoder   Encoder para hash da senha do usuário administrador.
-     * @return Runnable que executa a inicialização dos dados.
+     * @param permissionRepo repositório de permissões
+     * @param roleRepo repositório de papéis
+     * @param userRepo repositório de usuários
+     * @param passwordEncoder encoder para senhas
+     * @return {@link CommandLineRunner} que executa a carga inicial de dados
      */
     @Bean
+    @Transactional
     public CommandLineRunner initData(
-            PermissionRepository permRepo,
+            PermissionRepository permissionRepo,
             RoleRepository roleRepo,
             UserRepository userRepo,
-            PasswordEncoder passwordEncoder
-    ) {
+            PasswordEncoder passwordEncoder) {
         return args -> {
-            List<Permission> permissions = Arrays.stream(PermissionEnum.values())
-                    .map(PermissionEnum::toPermission)
-                    .map(p -> permRepo.findByName(p.getName()).orElseGet(() -> permRepo.save(p)))
-                    .toList();
+            Map<String, Permission> permissionsMap = createPermissions(permissionRepo);
 
-            List<Permission> adminPerms = ADMIN_PERMISSIONS.stream()
-                    .map(p -> permRepo.findByName(p.getName())
-                            .orElseThrow(() -> new PermissaoNaoEncontradaException("Permissão " + p + " não encontrada")))
-                    .toList();
+            Set<Permission> adminPerms = getPermissionsFromEnum(permissionsMap, ADMIN_PERMISSIONS);
+            Role adminRole = createOrUpdateRole(roleRepo, RoleNameEnum.ROLE_ADMINISTRATOR, adminPerms);
 
-            List<Permission> customerPerms = CUSTOMER_PERMISSIONS.stream()
-                    .map(p -> permRepo.findByName(p.getName())
-                            .orElseThrow(() -> new PermissaoNaoEncontradaException("Permissão " + p + " não encontrada")))
-                    .toList();
+            Set<Permission> customerPerms = getPermissionsFromEnum(permissionsMap, CUSTOMER_PERMISSIONS);
+            createOrUpdateRole(roleRepo, RoleNameEnum.ROLE_CUSTOMER, customerPerms);
 
-            List<Permission> providerPerms = PROVIDER_PERMISSIONS.stream()
-                    .map(p -> permRepo.findByName(p.getName())
-                            .orElseThrow(() -> new PermissaoNaoEncontradaException("Permissão " + p + " não encontrada")))
-                    .toList();
+            Set<Permission> providerPerms = getPermissionsFromEnum(permissionsMap, PROVIDER_PERMISSIONS);
+            createOrUpdateRole(roleRepo, RoleNameEnum.ROLE_SERVICE_PROVIDER, providerPerms);
 
-            Role admin = roleRepo.findByName(RoleNameEnum.ROLE_ADMINISTRATOR).orElseGet(() -> {
-                Role r = Role.builder().name(RoleNameEnum.ROLE_ADMINISTRATOR).build();
-                r.setPermissions(adminPerms);
-                return roleRepo.save(r);
-            });
-
-            Role customer = roleRepo.findByName(RoleNameEnum.ROLE_CUSTOMER).orElseGet(() -> {
-                Role r = Role.builder().name(RoleNameEnum.ROLE_CUSTOMER).build();
-                r.setPermissions(customerPerms);
-                return roleRepo.save(r);
-            });
-
-            Role provider = roleRepo.findByName(RoleNameEnum.ROLE_SERVICE_PROVIDER).orElseGet(() -> {
-                Role r = Role.builder().name(RoleNameEnum.ROLE_SERVICE_PROVIDER).build();
-                r.setPermissions(providerPerms);
-                return roleRepo.save(r);
-            });
-
-            if (userRepo.findByEmail(USER_ADMIN_EMAIL).isEmpty()) {
-                User adminUser = User.builder()
-                        .name(USER_ADMIN_NAME)
-                        .email(USER_ADMIN_EMAIL)
-                        .password(passwordEncoder.encode(USER_ADMIN_PASSWORD))
-                        .roles(List.of(admin))
-                        .build();
-                userRepo.save(adminUser);
-                System.out.println("Usuário " + USER_ADMIN_EMAIL + " criado com sucesso!");
-            }
+            createAdminUser(userRepo, passwordEncoder, adminRole);
         };
+    }
+
+    /**
+     * Cria todas as permissões definidas em {@link PermissionEnum}, caso não existam no banco.
+     *
+     * @param permissionRepo repositório de permissões
+     * @return mapa de permissões, indexado pelo nome
+     */
+    private Map<String, Permission> createPermissions(PermissionRepository permissionRepo) {
+        return EnumSet.allOf(PermissionEnum.class).stream()
+                .map(pEnum -> permissionRepo.findByName(pEnum.getName())
+                        .orElseGet(() -> permissionRepo.save(pEnum.toPermission())))
+                .collect(Collectors.toMap(Permission::getName, Function.identity()));
+    }
+
+    /**
+     * Recupera as permissões correspondentes a um conjunto de {@link PermissionEnum}.
+     *
+     * @param map mapa de permissões já persistidas
+     * @param enumSet conjunto de enums de permissões
+     * @return conjunto de permissões prontas para atribuição
+     */
+    private Set<Permission> getPermissionsFromEnum(Map<String, Permission> map, EnumSet<PermissionEnum> enumSet) {
+        return enumSet.stream()
+                .map(pEnum -> map.get(pEnum.getName()))
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * Cria ou atualiza um papel (role) no banco, atribuindo suas permissões.
+     *
+     * @param roleRepo repositório de papéis
+     * @param roleName nome do papel
+     * @param permissions permissões atribuídas ao papel
+     * @return papel salvo/atualizado
+     */
+    private Role createOrUpdateRole(RoleRepository roleRepo, RoleNameEnum roleName, Set<Permission> permissions) {
+        Role role = roleRepo.findByName(roleName)
+                .orElse(new Role(roleName));
+
+        role.setPermissions(permissions);
+        return roleRepo.save(role);
+    }
+
+    /**
+     * Cria o usuário administrador padrão caso ele não exista.
+     *
+     * @param userRepo repositório de usuários
+     * @param passwordEncoder encoder de senha
+     * @param adminRole papel de administrador atribuído ao usuário
+     */
+    private void createAdminUser(UserRepository userRepo, PasswordEncoder passwordEncoder, Role adminRole) {
+        if (userRepo.findByEmail(adminEmail).isEmpty()) {
+            User adminUser = new User(
+                    adminName,
+                    adminEmail,
+                    passwordEncoder.encode(adminPassword),
+                    Set.of(adminRole)
+            );
+            userRepo.save(adminUser);
+            System.out.println("Usuário administrador '" + adminEmail + "' criado com sucesso!");
+        }
     }
 }

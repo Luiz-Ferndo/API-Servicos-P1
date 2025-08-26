@@ -2,15 +2,13 @@ package com.prestacaoservicos.service;
 
 import com.prestacaoservicos.dto.*;
 import com.prestacaoservicos.dto.RecoveryUserDto;
-import com.prestacaoservicos.entity.Permission;
-import com.prestacaoservicos.entity.Role;
-import com.prestacaoservicos.entity.User;
-import com.prestacaoservicos.entity.UserPhone;
+import com.prestacaoservicos.entity.*;
 import com.prestacaoservicos.enums.RoleNameEnum;
 import com.prestacaoservicos.exception.CredenciaisInvalidasException;
 import com.prestacaoservicos.exception.RecursoNaoEncontradoException;
 import com.prestacaoservicos.exception.RegraNegocioException;
 import com.prestacaoservicos.repository.RoleRepository;
+import com.prestacaoservicos.repository.ServicoRepository;
 import com.prestacaoservicos.repository.UserPhoneRepository;
 import com.prestacaoservicos.repository.UserRepository;
 import com.prestacaoservicos.security.config.SecurityConfiguration;
@@ -23,9 +21,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -39,7 +37,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final SecurityConfiguration securityConfiguration;
     private final RoleRepository roleRepository;
-    private final UserPhoneRepository userPhoneRepository;
+    private final ServicoRepository servicoRepository;
 
     private final String DEFAULT_TOKEN_TYPE = "Bearer";
 
@@ -47,14 +45,14 @@ public class UserService {
                        JwtTokenService jwtTokenService,
                        UserRepository userRepository,
                        SecurityConfiguration securityConfiguration,
-                       RoleRepository roleRepository,
-                          UserPhoneRepository userPhoneRepository) {
+                       RoleRepository roleRepository, ServicoRepository servicoRepository,
+                       UserPhoneRepository userPhoneRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenService = jwtTokenService;
         this.userRepository = userRepository;
         this.securityConfiguration = securityConfiguration;
         this.roleRepository = roleRepository;
-        this.userPhoneRepository = userPhoneRepository;
+        this.servicoRepository = servicoRepository;
     }
 
     /**
@@ -120,13 +118,12 @@ public class UserService {
         Role role = roleRepository.findByName(roleEnum)
                 .orElseThrow(() -> new RegraNegocioException("A role '" + roleEnum + "' não existe no sistema."));
 
-        User newUser = User.builder()
-                .name(createUserDto.name())
-                .email(createUserDto.email())
-                .password(securityConfiguration.passwordEncoder().encode(createUserDto.password()))
-                .roles(List.of(role))
-                .phones(new ArrayList<>())
-                .build();
+        User newUser = new User(
+                createUserDto.name(),
+                createUserDto.email(),
+                securityConfiguration.passwordEncoder().encode(createUserDto.password()),
+                Set.of(role)
+        );
 
         if (createUserDto.phones() != null && !createUserDto.phones().isEmpty()) {
             addUserPhones(newUser, createUserDto.phones());
@@ -141,7 +138,7 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public List<RecoveryUserDto> listAllUsers() {
-        return userRepository.findAll()
+        return userRepository.findAllWithRolesAndPermissions()
                 .stream()
                 .map(this::convertToUserDto)
                 .collect(Collectors.toList());
@@ -264,7 +261,6 @@ public class UserService {
         );
     }
 
-
     /**
      * Adiciona telefones a um usuário.
      * @param user O usuário ao qual os telefones serão adicionados.
@@ -284,4 +280,58 @@ public class UserService {
         }
     }
 
+    /**
+     * Associa um serviço a um prestador.
+     *
+     * @param prestadorId ID do prestador.
+     * @param servicoId   ID do serviço a ser associado.
+     * @throws RecursoNaoEncontradoException se o prestador ou serviço não forem encontrados.
+     * @throws RegraNegocioException          se o usuário não for um prestador ou já oferecer o serviço.
+     */
+    @Transactional
+    public void associarServico(Long prestadorId, Long servicoId) {
+        User prestador = userRepository.findById(prestadorId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário (prestador) não encontrado."));
+
+        Servico servico = servicoRepository.findById(servicoId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Serviço não encontrado."));
+
+        boolean isProvider = prestador.getRoles().stream()
+                .anyMatch(role -> role.getName().equals(RoleNameEnum.ROLE_SERVICE_PROVIDER));
+
+        if (!isProvider) {
+            throw new RegraNegocioException("Apenas usuários com o papel de prestador podem oferecer serviços.");
+        }
+
+        if (prestador.getServicosOferecidos().contains(servico)) {
+            throw new RegraNegocioException("Este prestador já oferece o serviço selecionado.");
+        }
+
+        prestador.getServicosOferecidos().add(servico);
+        userRepository.save(prestador);
+    }
+
+    /**
+     * Desassocia um serviço de um prestador.
+     *
+     * @param prestadorId ID do prestador.
+     * @param servicoId   ID do serviço a ser desassociado.
+     * @throws RecursoNaoEncontradoException se o prestador ou serviço não forem encontrados.
+     * @throws RegraNegocioException          se o prestador não oferecer o serviço informado.
+     */
+    @Transactional
+    public void desassociarServico(Long prestadorId, Long servicoId) {
+        User prestador = userRepository.findById(prestadorId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário (prestador) não encontrado."));
+
+        Servico servico = servicoRepository.findById(servicoId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Serviço não encontrado."));
+
+        if (!prestador.getServicosOferecidos().contains(servico)) {
+            throw new RegraNegocioException("O prestador não oferece o serviço informado para que seja desassociado.");
+        }
+
+        prestador.getServicosOferecidos().remove(servico);
+        userRepository.save(prestador);
+    }
 }

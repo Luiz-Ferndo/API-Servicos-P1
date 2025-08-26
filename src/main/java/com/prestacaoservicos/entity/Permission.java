@@ -1,8 +1,9 @@
 package com.prestacaoservicos.entity;
 
 import jakarta.persistence.*;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "permissions")
@@ -19,7 +20,7 @@ public class Permission {
     private String description;
 
     @ManyToMany(mappedBy = "permissions")
-    private List<Role> roles;
+    private Set<Role> roles = new HashSet<>();
 
     public Permission() {}
 
@@ -37,8 +38,8 @@ public class Permission {
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
 
-    public List<Role> getRoles() { return roles; }
-    public void setRoles(List<Role> roles) { this.roles = roles; }
+    public Set<Role> getRoles() { return roles; }
+    public void setRoles(Set<Role> roles) { this.roles = roles; }
 
     @Override
     public boolean equals(Object o) {
