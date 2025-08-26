@@ -55,7 +55,8 @@ public class SecurityConfiguration {
      * Endpoints que exigem que o usuário esteja autenticado.
      */
     public static final String [] ENDPOINTS_WITH_AUTHENTICATION_REQUIRED = {
-            "/agendamentos/**",
+            "/api/v1/agendamentos/**",
+            "/api/v1/servicos/**",
             "/api/v1/users/**"
     };
 
