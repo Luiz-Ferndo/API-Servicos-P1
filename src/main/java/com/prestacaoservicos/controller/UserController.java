@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -88,6 +89,7 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "Lista de usuários retornada com sucesso")
     })
     @GetMapping("/users")
+    @PreAuthorize("hasRole('ADMINISTRATOR')")
     public ResponseEntity<List<RecoveryUserDto>> findAll() {
         List<RecoveryUserDto> users = userService.listAllUsers();
         return ResponseEntity.ok(users);
@@ -105,6 +107,7 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     })
     @GetMapping("/users/{id}")
+    @PreAuthorize("hasRole('ADMINISTRATOR')")
     public ResponseEntity<RecoveryUserDto> findUserById(
             @Parameter(description = "ID do usuário a ser buscado") @PathVariable Long id) {
         RecoveryUserDto user = userService.findUserById(id);
@@ -123,6 +126,7 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     })
     @GetMapping("/users/search")
+    @PreAuthorize("hasRole('ADMINISTRATOR')")
     public ResponseEntity<RecoveryUserDto> findUserByEmail(
             @Parameter(description = "Endereço de email do usuário") @RequestParam String email) {
         RecoveryUserDto user = userService.findUserByEmail(email);

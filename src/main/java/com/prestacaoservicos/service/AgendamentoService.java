@@ -95,8 +95,6 @@ public class AgendamentoService {
         Servico servico = servicoRepo.findById(servicoId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Serviço não encontrado. ID: " + servicoId));
 
-        validarPapeis(cliente, prestador);
-
         if (!userRepo.prestadorOfereceServico(prestador.getId(), servico.getId())) {
             throw new RegraNegocioException("O prestador selecionado não oferece este serviço.");
         }
@@ -189,27 +187,6 @@ public class AgendamentoService {
         }
 
         return Page.empty(pageable);
-    }
-
-    /**
-     * Valida os papéis (roles) do cliente e do prestador em um agendamento.
-     *
-     * @param cliente   Usuário cliente
-     * @param prestador Usuário prestador
-     * @throws RegraNegocioException se o cliente ou prestador não tiverem os papéis esperados
-     */
-    private void validarPapeis(User cliente, User prestador) {
-        boolean clienteValido = cliente.getRoles().stream()
-                .anyMatch(role -> role.getName().equals(RoleNameEnum.ROLE_CUSTOMER));
-        if (!clienteValido) {
-            throw new RegraNegocioException("Usuário não possui permissão de cliente.");
-        }
-
-        boolean prestadorValido = prestador.getRoles().stream()
-                .anyMatch(role -> role.getName().equals(RoleNameEnum.ROLE_SERVICE_PROVIDER));
-        if (!prestadorValido) {
-            throw new RegraNegocioException("Usuário não possui permissão de prestador.");
-        }
     }
 
     /**

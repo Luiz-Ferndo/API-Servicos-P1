@@ -72,6 +72,7 @@ public class ServicoController {
      */
     @GetMapping
     @Operation(summary = "Listar todos os serviços disponíveis")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'SERVICE_PROVIDER', 'CUSTOMER')")
     public ResponseEntity<List<ServicoResponseDTO>> findAll() {
         List<Servico> servicos = service.findAll();
         List<ServicoResponseDTO> dtos = servicos.stream()
@@ -88,6 +89,7 @@ public class ServicoController {
      */
     @GetMapping("/{id}")
     @Operation(summary = "Buscar um serviço por ID")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'SERVICE_PROVIDER', 'CUSTOMER')")
     public ResponseEntity<ServicoResponseDTO> findById(@PathVariable Long id) {
         Servico servico = service.findById(id);
         return ResponseEntity.ok(ServicoResponseDTO.fromEntity(servico));

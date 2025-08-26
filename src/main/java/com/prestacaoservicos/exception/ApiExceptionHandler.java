@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -23,25 +24,6 @@ import java.util.List;
  */
 @RestControllerAdvice
 public class ApiExceptionHandler {
-
-    /**
-     * Trata exceções genéricas não tratadas em outros handlers.
-     * Retorna erro HTTP 500 - Internal Server Error.
-     *
-     * @param ex      Exceção capturada.
-     * @param request Objeto que contém informações da requisição HTTP.
-     * @return ResponseEntity com status 500 e corpo com detalhes do erro.
-     */
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiError> handleGeral(Exception ex, HttpServletRequest request) {
-        ApiError error = new ApiError(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                "Erro interno inesperado",
-                request.getRequestURI()
-        );
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
-    }
-
     /**
      * Trata exceções do tipo {@link RegraNegocioException}.
      * Retorna erro HTTP 400 - Bad Request com a mensagem específica da regra violada.
@@ -320,5 +302,45 @@ public class ApiExceptionHandler {
                 request.getRequestURI()
         );
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    }
+
+    /**
+     * Handler genérico para capturar outras exceções não tratadas.
+     * <p>
+     * Serve como um "catch-all" para evitar que exceções inesperadas quebrem a aplicação,
+     * retornando um status HTTP 500 (Internal Server Error) de forma controlada.
+     *
+     * @param ex      A exceção genérica capturada.
+     * @param request O objeto da requisição HTTP original.
+     * @return Um ResponseEntity contendo o objeto ApiError e o status 500.
+     */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiError> handleGenericException(Exception ex, HttpServletRequest request) {
+        ApiError apiError = new ApiError(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Ocorreu um erro inesperado no servidor. Tente novamente mais tarde.",
+                request.getRequestURI()
+        );
+        return new ResponseEntity<>(apiError, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * Trata exceções de acesso negado (Spring Security - @PreAuthorize).
+     * <p>
+     * Quando um usuário tenta acessar um recurso para o qual não tem permissão,
+     * este handler é acionado e retorna um status HTTP 403 (Forbidden).
+     *
+     * @param ex      A exceção AccessDeniedException lançada pelo Spring Security.
+     * @param request O objeto da requisição HTTP original.
+     * @return Um ResponseEntity contendo o objeto ApiError e o status 403.
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiError> handleAccessDenied(AccessDeniedException ex, HttpServletRequest request) {
+        ApiError apiError = new ApiError(
+                HttpStatus.FORBIDDEN,
+                "Acesso Negado. Você não possui permissão para executar esta ação.",
+                request.getRequestURI()
+        );
+        return new ResponseEntity<>(apiError, HttpStatus.FORBIDDEN);
     }
 }

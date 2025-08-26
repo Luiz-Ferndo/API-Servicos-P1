@@ -58,6 +58,7 @@ public class AgendamentoController {
     @Operation(summary = "Agendar novo serviço", description = "Cria um novo agendamento para o cliente autenticado.")
     @ApiResponse(responseCode = "201", description = "Agendamento criado com sucesso")
     @PostMapping
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseEntity<AgendamentoResponseDTO> agendar(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @Valid @RequestBody AgendamentoRequestDTO dto) {
@@ -86,6 +87,7 @@ public class AgendamentoController {
     @Operation(summary = "Atualizar status de um agendamento", description = "Modifica o status de um agendamento (ex: para CANCELADO).")
     @ApiResponse(responseCode = "200", description = "Agendamento atualizado com sucesso")
     @PutMapping("/{id}/status")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'SERVICE_PROVIDER', 'CUSTOMER')")
     public ResponseEntity<AgendamentoResponseDTO> atualizarStatus(
             @Parameter(description = "ID do agendamento") @PathVariable Long id,
             @Valid @RequestBody AtualizacaoStatusDTO dto,
@@ -104,6 +106,7 @@ public class AgendamentoController {
      */
     @Operation(summary = "Listar agendamentos por cliente")
     @GetMapping("/cliente/{clienteId}")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'SERVICE_PROVIDER', 'CUSTOMER')")
     public ResponseEntity<List<AgendamentoResponseDTO>> listarPorCliente(
             @Parameter(description = "ID do cliente") @PathVariable Long clienteId) {
 
@@ -122,6 +125,7 @@ public class AgendamentoController {
      */
     @Operation(summary = "Listar agendamentos por prestador")
     @GetMapping("/prestador/{prestadorId}")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'SERVICE_PROVIDER')")
     public ResponseEntity<List<AgendamentoResponseDTO>> listarPorPrestador(
             @Parameter(description = "ID do prestador") @PathVariable Long prestadorId) {
 
