@@ -1,20 +1,32 @@
-FROM maven:3.9.6-eclipse-temurin-21 AS build
+# Stage 1: Build
+FROM golang:1.22-alpine AS builder
 
 WORKDIR /app
 
-COPY pom.xml .
-COPY src ./src
+# Copiar arquivos de dependências
+COPY go.mod go.sum ./
+RUN go mod download
 
-RUN mvn clean package -DskipTests
+# Copiar código fonte
+COPY . .
 
-FROM eclipse-temurin:21-jdk
+# Build da aplicação
+RUN CGO_ENABLED=0 GOOS=linux go build -o main ./cmd/api
 
-WORKDIR /app
+# Stage 2: Runtime
+FROM alpine:latest
 
-COPY --from=build /app/target/app.jar app.jar
+WORKDIR /root/
 
-COPY .env .env
+# Instalar ca-certificates para HTTPS
+RUN apk --no-cache add ca-certificates
+
+# Copiar binário do stage de build
+COPY --from=builder /app/main .
+
+# Copiar .env.example como .env (será sobrescrito por variáveis de ambiente)
+COPY .env.example .env
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+CMD ["./main"]
