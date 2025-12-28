@@ -1,6 +1,36 @@
 # 🚀 Sistema de Prestação de Serviços
 
-Este é o repositório da API para o Sistema de Prestação de Serviços, desenvolvido com Spring Boot.
+Este é o repositório da API para o Sistema de Prestação de Serviços.
+
+> **🆕 Nova Versão em Go Disponível!**  
+> Este projeto agora possui uma implementação completa em **Go + Gin + GORM + Redis**!  
+> 📖 Veja [README_GO.md](./README_GO.md) para instruções da versão Go.
+
+---
+
+## 📦 Versões Disponíveis
+
+Este repositório contém **duas implementações completas** do mesmo sistema:
+
+### 1️⃣ Versão Java/Spring Boot (Original)
+- **Backend:** Spring Boot 3+
+- **Linguagem:** Java 21+
+- **Banco de Dados:** PostgreSQL 17+
+- **Containerização:** Docker
+- 📖 Documentação abaixo
+
+### 2️⃣ Versão Go/Gin (Nova) ⭐
+- **Backend:** Gin Framework
+- **Linguagem:** Go 1.22+
+- **ORM:** GORM
+- **Cache:** Redis 7+
+- **Banco de Dados:** PostgreSQL 17+
+- **Containerização:** Docker + Docker Compose
+- 📖 [Veja README_GO.md](./README_GO.md)
+
+Ambas as versões mantêm a **mesma estrutura de API** e **funcionalidades**.
+
+---
 
 ## 📝 Estudo de Caso
 
@@ -241,3 +271,33 @@ Endpoints para criar e gerenciar os agendamentos de serviços.
 
 * [Requisitos](./Documentação/requisitos.md)
 * [Caso de Uso](./Documentação/caso_de_uso.md)
+
+---
+
+## 🔄 Versão Go
+
+Este projeto foi completamente reescrito em **Go** mantendo todas as funcionalidades!
+
+### 🌟 Vantagens da Versão Go:
+- ⚡ **Performance superior** - Go é compilado e altamente performático
+- 🚀 **Startup rápido** - Aplicação inicia em milissegundos
+- 📦 **Binary único** - Deploy simplificado sem necessidade de JVM
+- 💾 **Menor consumo de memória** - Footprint significativamente menor
+- 🔴 **Redis integrado** - Cache nativo para melhor performance
+- 🧩 **Arquitetura limpa** - Estrutura bem organizada e modular
+
+### 📖 Como usar a versão Go:
+
+```bash
+# Executar com Docker Compose (recomendado)
+docker-compose up -d
+
+# Ou executar localmente
+go run cmd/api/main.go
+```
+
+**Para documentação completa da versão Go, consulte:** [README_GO.md](./README_GO.md)
+
+---
+
+**Escolha a versão que melhor se adequa às suas necessidades!** Ambas implementam a mesma API e funcionalidades. ✨
