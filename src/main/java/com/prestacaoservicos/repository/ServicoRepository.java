@@ -1,7 +1,9 @@
 package com.prestacaoservicos.repository;
 
 import com.prestacaoservicos.entity.Servico;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa. repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,4 +27,10 @@ public interface ServicoRepository extends JpaRepository<Servico, Long> {
      * @return Uma lista de serviços ativos.
      */
     List<Servico> findAllByAtivoTrue();
+
+    @Query("SELECT DISTINCT s FROM Servico s LEFT JOIN FETCH s.prestadores WHERE s. ativo = true")
+    List<Servico> findAllByAtivoTrueWithPrestadores();
+
+    @Query("SELECT s FROM Servico s LEFT JOIN FETCH s.prestadores WHERE s.id = :id")
+    Optional<Servico> findByIdWithPrestadores(@Param("id") Long id);
 }

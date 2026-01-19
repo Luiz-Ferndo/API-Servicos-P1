@@ -3,7 +3,9 @@ package com.prestacaoservicos.entity;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
-import java.util.Objects;
+import java.util.HashSet;
+import java.util. Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "servico")
@@ -25,13 +27,16 @@ public class Servico {
     @Column(name = "st_ativo", nullable = false)
     private boolean ativo = true;
 
+    @ManyToMany(mappedBy = "servicosOferecidos", fetch = FetchType.LAZY)
+    private Set<User> prestadores = new HashSet<>();
+
     public Servico() {}
 
     public Servico(Long id, String nome, BigDecimal valor, String descricao, boolean ativo) {
         this.id = id;
-        this.nome = nome;
-        this.valor = valor;
-        this.descricao = descricao;
+        this. nome = nome;
+        this. valor = valor;
+        this. descricao = descricao;
         this.ativo = ativo;
     }
 
@@ -75,6 +80,14 @@ public class Servico {
         this.ativo = ativo;
     }
 
+    public Set<User> getPrestadores() {
+        return prestadores;
+    }
+
+    public void setPrestadores(Set<User> prestadores) {
+        this.prestadores = prestadores;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -83,7 +96,7 @@ public class Servico {
         return Objects.equals(id, servico.id) &&
                 Objects.equals(nome, servico.nome) &&
                 Objects.equals(valor, servico.valor) &&
-                Objects.equals(descricao, servico.descricao) &&
+                Objects. equals(descricao, servico.descricao) &&
                 Objects.equals(ativo, servico.ativo);
     }
 

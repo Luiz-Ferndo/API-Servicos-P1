@@ -1,10 +1,10 @@
-package com.prestacaoservicos.service;
+package com.prestacaoservicos. service;
 
 import com.prestacaoservicos.dto.ServicoRequestDTO;
 import com.prestacaoservicos.entity.Servico;
 import com.prestacaoservicos.entity.User;
 import com.prestacaoservicos.exception.RecursoNaoEncontradoException;
-import com.prestacaoservicos.exception.RegraNegocioException;
+import com. prestacaoservicos.exception.RegraNegocioException;
 import com.prestacaoservicos.repository.ServicoRepository;
 import com.prestacaoservicos.repository.UserRepository;
 import com.prestacaoservicos.security.userdetails.UserDetailsImpl;
@@ -54,7 +54,7 @@ public class ServicoService {
         servicoRepo.save(novoServico);
 
         User prestador = userRepo.findById(usuarioLogado.getId())
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado."));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado. "));
 
         prestador.getServicosOferecidos().add(novoServico);
         userRepo.save(prestador);
@@ -70,8 +70,8 @@ public class ServicoService {
      * @throws RecursoNaoEncontradoException Se o serviço não for encontrado
      */
     public Servico findById(Long id) {
-        return servicoRepo.findById(id)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Serviço não encontrado. ID: " + id));
+        return servicoRepo. findByIdWithPrestadores(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Serviço não encontrado.  ID: " + id));
     }
 
     /**
@@ -80,7 +80,7 @@ public class ServicoService {
      * @return Lista de serviços ativos
      */
     public List<Servico> findAll() {
-        return servicoRepo.findAllByAtivoTrue();
+        return servicoRepo.findAllByAtivoTrueWithPrestadores();
     }
 
     /**
@@ -94,32 +94,32 @@ public class ServicoService {
      */
     @Transactional
     public Servico update(Long id, ServicoRequestDTO dto) {
-        Servico servico = findById(id);
+        Servico servicoExistente = findById(id);
 
-        servicoRepo.findByNomeIgnoreCase(dto.nome()).ifPresent(s -> {
-            if (!s.getId().equals(id)) {
-                throw new RegraNegocioException("O nome '" + dto.nome() + "' já está em uso por outro serviço.");
-            }
-        });
+        servicoRepo.findByNomeIgnoreCase(dto.nome())
+                .ifPresent(s -> {
+                    if (!s.getId().equals(id)) {
+                        throw new RegraNegocioException("Já existe um serviço com esse nome.");
+                    }
+                });
 
-        servico.setNome(dto.nome());
-        servico.setValor(dto.valor());
-        servico.setDescricao(dto.descricao());
+        servicoExistente. setNome(dto.nome());
+        servicoExistente. setValor(dto.valor());
+        servicoExistente. setDescricao(dto.descricao());
 
-        return servicoRepo.save(servico);
+        return servicoRepo.save(servicoExistente);
     }
 
     /**
-     * Realiza a exclusão lógica de um serviço, desativando-o.
+     * Realiza a exclusão lógica de um serviço (marca como inativo).
      *
-     * @param id Identificador do serviço
+     * @param id Identificador do serviço a ser excluído
      * @throws RecursoNaoEncontradoException Se o serviço não for encontrado
      */
     @Transactional
     public void delete(Long id) {
         Servico servico = findById(id);
-
         servico.setAtivo(false);
-        servicoRepo.save(servico);
+        servicoRepo. save(servico);
     }
 }
