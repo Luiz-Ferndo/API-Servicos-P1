@@ -1,17 +1,17 @@
-package com.prestacaoservicos. service;
+package com.prestacaoservicos.service;
 
-import com.prestacaoservicos.dto.ServicoRequestDTO;
+import com.prestacaoservicos. dto.ServicoRequestDTO;
 import com.prestacaoservicos.entity.Servico;
 import com.prestacaoservicos.entity.User;
 import com.prestacaoservicos.exception.RecursoNaoEncontradoException;
-import com. prestacaoservicos.exception.RegraNegocioException;
+import com.prestacaoservicos.exception.RegraNegocioException;
 import com.prestacaoservicos.repository.ServicoRepository;
 import com.prestacaoservicos.repository.UserRepository;
 import com.prestacaoservicos.security.userdetails.UserDetailsImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util. List;
 
 /**
  * Service responsável por gerenciar as regras de negócio relacionadas a {@link Servico}.
@@ -47,8 +47,8 @@ public class ServicoService {
     @Transactional
     public Servico create(ServicoRequestDTO dto, UserDetailsImpl usuarioLogado) {
         Servico novoServico = new Servico();
-        novoServico.setNome(dto.nome());
-        novoServico.setValor(dto.valor());
+        novoServico. setNome(dto.nome());
+        novoServico. setValor(dto.valor());
         novoServico.setDescricao(dto.descricao());
 
         servicoRepo.save(novoServico);
@@ -70,7 +70,7 @@ public class ServicoService {
      * @throws RecursoNaoEncontradoException Se o serviço não for encontrado
      */
     public Servico findById(Long id) {
-        return servicoRepo. findByIdWithPrestadores(id)
+        return servicoRepo.findByIdWithPrestadores(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Serviço não encontrado.  ID: " + id));
     }
 
@@ -81,6 +81,21 @@ public class ServicoService {
      */
     public List<Servico> findAll() {
         return servicoRepo.findAllByAtivoTrueWithPrestadores();
+    }
+
+    /**
+     * Busca todos os serviços oferecidos por um prestador específico.
+     *
+     * @param prestadorId ID do prestador
+     * @return Lista de serviços ativos oferecidos pelo prestador
+     * @throws RecursoNaoEncontradoException Se o prestador não for encontrado
+     */
+    public List<Servico> findAllByPrestadorId(Long prestadorId) {
+        // Valida se o prestador existe
+        userRepo.findById(prestadorId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Prestador não encontrado. ID:  " + prestadorId));
+
+        return servicoRepo.findAllByPrestadorId(prestadorId);
     }
 
     /**
@@ -103,9 +118,9 @@ public class ServicoService {
                     }
                 });
 
-        servicoExistente. setNome(dto.nome());
-        servicoExistente. setValor(dto.valor());
-        servicoExistente. setDescricao(dto.descricao());
+        servicoExistente.setNome(dto.nome());
+        servicoExistente.setValor(dto.valor());
+        servicoExistente.setDescricao(dto. descricao());
 
         return servicoRepo.save(servicoExistente);
     }
@@ -120,6 +135,6 @@ public class ServicoService {
     public void delete(Long id) {
         Servico servico = findById(id);
         servico.setAtivo(false);
-        servicoRepo. save(servico);
+        servicoRepo.save(servico);
     }
 }

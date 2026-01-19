@@ -1,9 +1,9 @@
-package com.prestacaoservicos.repository;
+package com.prestacaoservicos. repository;
 
 import com.prestacaoservicos.entity.Servico;
-import org.springframework.data.jpa. repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import org.springframework. data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository. Query;
+import org.springframework. data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,9 +28,20 @@ public interface ServicoRepository extends JpaRepository<Servico, Long> {
      */
     List<Servico> findAllByAtivoTrue();
 
-    @Query("SELECT DISTINCT s FROM Servico s LEFT JOIN FETCH s.prestadores WHERE s. ativo = true")
+    @Query("SELECT DISTINCT s FROM Servico s LEFT JOIN FETCH s.prestadores WHERE s.ativo = true")
     List<Servico> findAllByAtivoTrueWithPrestadores();
 
-    @Query("SELECT s FROM Servico s LEFT JOIN FETCH s.prestadores WHERE s.id = :id")
+    @Query("SELECT s FROM Servico s LEFT JOIN FETCH s.prestadores WHERE s. id = :id")
     Optional<Servico> findByIdWithPrestadores(@Param("id") Long id);
+
+    /**
+     * Busca todos os serviços oferecidos por um prestador específico.
+     *
+     * @param prestadorId O ID do prestador.
+     * @return Uma lista de serviços ativos oferecidos pelo prestador.
+     */
+    @Query("SELECT DISTINCT s FROM Servico s " +
+            "JOIN s.prestadores p " +
+            "WHERE p.id = :prestadorId AND s.ativo = true")
+    List<Servico> findAllByPrestadorId(@Param("prestadorId") Long prestadorId);
 }

@@ -1,4 +1,4 @@
-package com.prestacaoservicos.controller;
+package com. prestacaoservicos.controller;
 
 import com.prestacaoservicos.dto.ServicoRequestDTO;
 import com.prestacaoservicos.dto.ServicoResponseDTO;
@@ -10,14 +10,14 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org. springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core. annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.net. URI;
+import java.util. List;
+import java.util.stream. Collectors;
 
 /**
  * Controlador responsável pelas operações relacionadas a {@link Servico}.
@@ -60,7 +60,7 @@ public class ServicoController {
 
         Servico novoServico = service.create(dto, usuarioLogado);
 
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+        URI location = ServletUriComponentsBuilder. fromCurrentRequest().path("/{id}")
                 .buildAndExpand(novoServico.getId()).toUri();
         return ResponseEntity.created(location).body(ServicoResponseDTO.fromEntity(novoServico));
     }
@@ -93,6 +93,23 @@ public class ServicoController {
     public ResponseEntity<ServicoResponseDTO> findById(@PathVariable Long id) {
         Servico servico = service.findById(id);
         return ResponseEntity.ok(ServicoResponseDTO.fromEntity(servico));
+    }
+
+    /**
+     * Busca todos os serviços oferecidos por um prestador específico.
+     *
+     * @param prestadorId identificador do prestador.
+     * @return {@link ResponseEntity} contendo a lista de serviços oferecidos pelo prestador.
+     */
+    @GetMapping("/prestador/{prestadorId}")
+    @Operation(summary = "Buscar todos os serviços de um prestador específico")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'SERVICE_PROVIDER', 'CUSTOMER')")
+    public ResponseEntity<List<ServicoResponseDTO>> findByPrestadorId(@PathVariable Long prestadorId) {
+        List<Servico> servicos = service.findAllByPrestadorId(prestadorId);
+        List<ServicoResponseDTO> dtos = servicos.stream()
+                .map(ServicoResponseDTO::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
 
     /**
