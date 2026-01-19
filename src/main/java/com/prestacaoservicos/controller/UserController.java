@@ -1,6 +1,7 @@
 package com.prestacaoservicos.controller;
 
 import com.prestacaoservicos.dto.*;
+import com.prestacaoservicos.security.userdetails.UserDetailsImpl;
 import com.prestacaoservicos.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -11,7 +12,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -97,19 +100,37 @@ public class UserController {
 
     /**
      * Busca um usuário pelo seu identificador único.
+     * <p>
+     * Usuários autenticados podem visualizar seus próprios dados.
+     * Apenas administradores podem visualizar dados de outros usuários.
+     * </p>
      *
      * @param id identificador do usuário.
+     * @param authentication dados do usuário autenticado.
      * @return {@link ResponseEntity} contendo o usuário encontrado.
      */
-    @Operation(summary = "Buscar usuário por ID", description = "Retorna um usuário específico com base no ID informado")
+    @Operation(summary = "Buscar usuário por ID", description = "Retorna um usuário específico com base no ID informado.  Usuários podem visualizar apenas seus próprios dados, administradores podem visualizar qualquer usuário.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuário encontrado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado - você não tem permissão para visualizar este usuário"),
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     })
     @GetMapping("/users/{id}")
-    @PreAuthorize("hasRole('ADMINISTRATOR')")
     public ResponseEntity<RecoveryUserDto> findUserById(
-            @Parameter(description = "ID do usuário a ser buscado") @PathVariable Long id) {
+            @Parameter(description = "ID do usuário a ser buscado") @PathVariable Long id,
+            Authentication authentication) {
+
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        Long authenticatedUserId = userDetails.getId();
+
+        boolean isOwner = authenticatedUserId.equals(id);
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMINISTRATOR"));
+
+        if (! isOwner && !isAdmin) {
+            throw new AccessDeniedException("Você não tem permissão para visualizar os dados deste usuário");
+        }
+
         RecoveryUserDto user = userService.findUserById(id);
         return ResponseEntity.ok(user);
     }
